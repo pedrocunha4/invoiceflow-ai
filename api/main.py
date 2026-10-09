@@ -3,13 +3,16 @@ import hashlib
 from fastapi import FastAPI, UploadFile, File, HTTPException
 
 from api.models.invoice import InvoiceData
+from api.models.invoice_status import InvoiceStatusUpdate
+
 from api.services.ai_service import extract_invoice_data
 from api.services.database_service import (
     find_invoice_by_hash,
     find_invoice_by_number,
     get_all_invoices,
     get_invoice_by_id,
-    save_invoice
+    save_invoice,
+    update_invoice_status
 )
 from api.services.invoice_validation_service import (
     validate_invoice_business_rules
@@ -64,6 +67,37 @@ def get_invoice(invoice_id: int):
         )
 
     return invoice
+
+
+@app.patch("/invoices/{invoice_id}/status")
+def change_invoice_status(
+    invoice_id: int,
+    status_update: InvoiceStatusUpdate
+):
+
+    invoice = get_invoice_by_id(invoice_id)
+
+    if not invoice:
+        raise HTTPException(
+            status_code=404,
+            detail="Invoice not found."
+        )
+
+    updated_invoice = update_invoice_status(
+        invoice_id,
+        status_update.status
+    )
+
+    if not updated_invoice:
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to update invoice status."
+        )
+
+    return {
+        "message": "Invoice status updated successfully.",
+        "invoice": updated_invoice
+    }
 
 
 @app.post("/invoices/validate")

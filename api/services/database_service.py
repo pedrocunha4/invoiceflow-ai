@@ -118,3 +118,23 @@ def save_invoice(
     )
 
     return response.data[0]
+
+
+def update_invoice_status(
+    invoice_id: int,
+    status: str
+):
+    response = (
+        supabase
+        .table("invoices")
+        .update({
+            "status": status
+        })
+        .eq("id", invoice_id)
+        .execute()
+    )
+
+    if response.data:
+        return response.data[0]
+
+    return None
