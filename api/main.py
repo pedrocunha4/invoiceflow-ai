@@ -9,6 +9,7 @@ from api.models.invoice import InvoiceData
 from api.models.invoice_status import InvoiceStatusUpdate
 
 from api.services.ai_service import extract_invoice_data
+from api.services.make_service import send_make_event
 from api.services.database_service import (
     find_invoice_by_hash,
     find_invoice_by_number,
@@ -128,6 +129,7 @@ def change_invoice_status(
     status_update: InvoiceStatusUpdate
 ):
 
+    # Check if invoice exists
     invoice = get_invoice_by_id(invoice_id)
 
     if not invoice:
@@ -136,6 +138,7 @@ def change_invoice_status(
             detail="Invoice not found."
         )
 
+    # Update invoice status in Supabase
     updated_invoice = update_invoice_status(
         invoice_id,
         status_update.status
@@ -147,9 +150,16 @@ def change_invoice_status(
             detail="Failed to update invoice status."
         )
 
+    # Notify Make about the manual status change
+    make_notified = send_make_event(
+        event_type="invoice_status_changed",
+        invoice=updated_invoice
+    )
+
     return {
         "message": "Invoice status updated successfully.",
-        "invoice": updated_invoice
+        "invoice": updated_invoice,
+        "automation_triggered": make_notified
     }
 
 
@@ -276,13 +286,20 @@ async def extract_invoice(file: UploadFile = File(...)):
         validation=validation_result
     )
 
+    # Notify Make about the processed invoice
+    make_notified = send_make_event(
+        event_type="invoice_processed",
+        invoice=saved_invoice
+    )
+
     return {
         "status": "processed",
         "database_id": saved_invoice["id"],
         "filename": file.filename,
         "sha256": file_hash,
         "invoice": invoice.model_dump(mode="json"),
-        "validation": validation_result
+        "validation": validation_result,
+        "automation_triggered": make_notified
     }
 
 
