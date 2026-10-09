@@ -4,3 +4,4 @@ python-multipart
 pdfplumber
 groq
 python-dotenv
+supabase

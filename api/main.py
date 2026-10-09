@@ -1,9 +1,18 @@
+import hashlib
+
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from api.services.pdf_service import extract_text_from_pdf
+
 from api.models.invoice import InvoiceData
 from api.services.ai_service import extract_invoice_data
-from api.services.invoice_validation_service import validate_invoice_business_rules
-import hashlib
+from api.services.database_service import (
+    find_invoice_by_hash,
+    find_invoice_by_number,
+    save_invoice
+)
+from api.services.invoice_validation_service import (
+    validate_invoice_business_rules
+)
+from api.services.pdf_service import extract_text_from_pdf
 
 
 app = FastAPI(
@@ -44,12 +53,14 @@ def validate_invoice(invoice: InvoiceData):
 @app.post("/invoices/extract")
 async def extract_invoice(file: UploadFile = File(...)):
 
+    # Validate file type
     if file.content_type != "application/pdf":
         raise HTTPException(
             status_code=400,
             detail="Only PDF files are allowed."
         )
 
+    # Read file
     content = await file.read()
 
     if len(content) == 0:
@@ -64,6 +75,23 @@ async def extract_invoice(file: UploadFile = File(...)):
             detail="File is too large. Maximum size is 10 MB."
         )
 
+    # Generate SHA-256 fingerprint
+    file_hash = hashlib.sha256(content).hexdigest()
+
+    # Check if exactly the same PDF was already processed
+    existing_invoice = find_invoice_by_hash(file_hash)
+
+    if existing_invoice:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "status": "duplicate",
+                "reason": "file_hash",
+                "message": "This PDF has already been processed.",
+                "invoice_id": existing_invoice["id"]
+            }
+        )
+
     # Extract raw text from PDF
     extracted_text = extract_text_from_pdf(content)
 
@@ -74,7 +102,7 @@ async def extract_invoice(file: UploadFile = File(...)):
         )
 
     try:
-        # Convert unstructured PDF text into structured invoice data
+        # Convert PDF text into structured invoice data using AI
         invoice = extract_invoice_data(extracted_text)
 
     except Exception as error:
@@ -83,12 +111,42 @@ async def extract_invoice(file: UploadFile = File(...)):
             detail=f"AI extraction failed: {str(error)}"
         )
 
+    # Check if same supplier + invoice number already exists
+    existing_invoice = find_invoice_by_number(
+        invoice.supplier_vat_number,
+        invoice.invoice_number
+    )
+
+    if existing_invoice:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "status": "duplicate",
+                "reason": "invoice_number",
+                "message": (
+                    "An invoice with this supplier and "
+                    "invoice number already exists."
+                ),
+                "invoice_id": existing_invoice["id"]
+            }
+        )
+
     # Apply business validation rules
     validation_result = validate_invoice_business_rules(invoice)
 
+    # Save invoice in Supabase
+    saved_invoice = save_invoice(
+        file_name=file.filename,
+        file_hash=file_hash,
+        invoice=invoice,
+        validation=validation_result
+    )
+
     return {
         "status": "processed",
+        "database_id": saved_invoice["id"],
         "filename": file.filename,
+        "sha256": file_hash,
         "invoice": invoice.model_dump(mode="json"),
         "validation": validation_result
     }
