@@ -199,31 +199,79 @@ def fetch_invoice(invoice_id: Any) -> Tuple[Optional[Dict[str, Any]], Optional[s
 
 def process_invoice(uploaded_file: Any) -> Tuple[str, Any]:
     """Send the PDF to the API. Returns (outcome, payload)."""
+
     files = {
-        "file": (uploaded_file.name, uploaded_file.getvalue(), "application/pdf")
+        "file": (
+            uploaded_file.name,
+            uploaded_file.getvalue(),
+            "application/pdf"
+        )
     }
+
     try:
         response = requests.post(
-            f"{API_BASE_URL}/invoices/extract", files=files, timeout=60
+            f"{API_BASE_URL}/invoices/extract",
+            files=files,
+            timeout=60
         )
+
     except requests.RequestException as exc:
         return "network", str(exc)
 
+    # Successfully processed
     if response.status_code == 200:
         return "success", safe_json(response)
 
+    # Duplicate invoice
     if response.status_code == 409:
         body = safe_json(response)
-        detail = body.get("detail") if isinstance(body, dict) else None
+
+        detail = (
+            body.get("detail")
+            if isinstance(body, dict)
+            else None
+        )
+
         message = "Duplicate invoice detected."
+
         if isinstance(detail, dict):
-            message = detail.get("message", message)
+            message = detail.get(
+                "message",
+                message
+            )
+
         elif isinstance(detail, str):
             message = detail
+
         return "duplicate", message
 
+    # PDF exists but is not a valid invoice
+    if response.status_code == 422:
+        body = safe_json(response)
+
+        detail = (
+            body.get("detail")
+            if isinstance(body, dict)
+            else None
+        )
+
+        if isinstance(detail, str):
+            message = detail
+        else:
+            message = (
+                "The uploaded PDF could not be "
+                "recognized as a valid invoice."
+            )
+
+        return "invalid_invoice", message
+
+    # Other errors
     body = safe_json(response)
-    return "error", (response.status_code, body if body is not None else response.text)
+
+    return "error", (
+        response.status_code,
+        body if body is not None else response.text
+    )
 
 
 def update_invoice_status(invoice_id: Any, new_status: str) -> Tuple[bool, str]:
@@ -382,28 +430,75 @@ def render_dashboard() -> None:
 # ---------------------------------------------------------------------------
 
 
-def render_processing_result(outcome: str, payload: Any) -> None:
-    if outcome == "success":
-        st.success(
-            "Invoice processed successfully. "
-            "It is now in the registry and the review queue."
-        )
-        if payload is not None:
-            with st.expander("Extraction result", expanded=True):
-                st.json(payload)
-    elif outcome == "duplicate":
-        st.warning(f"Duplicate invoice: {payload}")
-    elif outcome == "network":
-        st.error(f"Could not connect to the API: {payload}")
-    else:
-        status_code, body = payload
-        st.error(f"Processing failed (HTTP {status_code}).")
-        with st.expander("Response details"):
-            if isinstance(body, (dict, list)):
-                st.json(body)
-            else:
-                st.text(body or "The response body was empty.")
+def render_processing_result(
+    outcome: str,
+    payload: Any
+) -> None:
 
+    if outcome == "success":
+
+        set_flash(
+            "success",
+            (
+                "Invoice processed successfully "
+                "and added to the registry."
+            )
+        )
+
+        # Clear the uploaded PDF after success
+        st.session_state["upload_version"] = (
+            st.session_state.get(
+                "upload_version",
+                0
+            ) + 1
+        )
+
+        st.rerun()
+
+    elif outcome == "duplicate":
+
+        st.warning(
+            f"Duplicate invoice: {payload}"
+        )
+
+    elif outcome == "invalid_invoice":
+
+        st.warning(
+            f"Invalid invoice: {payload}"
+        )
+
+    elif outcome == "network":
+
+        st.error(
+            f"Could not connect to the API: {payload}"
+        )
+
+    else:
+
+        status_code, body = payload
+
+        st.error(
+            (
+                "The invoice could not be processed. "
+                f"HTTP {status_code}."
+            )
+        )
+
+        with st.expander(
+            "Technical details"
+        ):
+
+            if isinstance(
+                body,
+                (dict, list)
+            ):
+                st.json(body)
+
+            else:
+                st.text(
+                    body
+                    or "The response body was empty."
+                )
 
 def render_upload_section() -> None:
 
@@ -414,11 +509,8 @@ def render_upload_section() -> None:
 
     with st.container(border=True):
 
-        uploaded_file = st.file_uploader(
-            "Invoice PDF",
-            type=["pdf"],
-            key="invoice_upload",
-        )
+        upload_version = st.session_state.get("upload_version", 0)
+        uploaded_file = st.file_uploader("Invoice PDF", type=["pdf"], key=f"invoice_upload_{upload_version}",)
 
         if uploaded_file is not None:
 

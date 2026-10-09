@@ -3,6 +3,7 @@ import hashlib
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.staticfiles import StaticFiles
+from pydantic import ValidationError
 
 from api.models.invoice import InvoiceData
 from api.models.invoice_status import InvoiceStatusUpdate
@@ -53,7 +54,7 @@ def custom_swagger_ui():
     return get_swagger_ui_html(
         openapi_url=app.openapi_url,
         title="InvoiceFlow AI API",
-        swagger_favicon_url= "/icon/favicon.png"
+        swagger_favicon_url="/icon/favicon.png"
     )
 
 
@@ -226,10 +227,22 @@ async def extract_invoice(file: UploadFile = File(...)):
         # Convert PDF text into structured invoice data using AI
         invoice = extract_invoice_data(extracted_text)
 
-    except Exception as error:
+    except ValidationError:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "The uploaded PDF does not contain a valid invoice "
+                "or the required invoice fields could not be extracted."
+            )
+        )
+
+    except Exception:
         raise HTTPException(
             status_code=502,
-            detail=f"AI extraction failed: {str(error)}"
+            detail=(
+                "The invoice could not be processed by the AI service. "
+                "Please try again later."
+            )
         )
 
     # Check if same supplier + invoice number already exists
