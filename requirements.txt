@@ -5,3 +5,5 @@ pdfplumber
 groq
 python-dotenv
 supabase
+streamlit
+requests

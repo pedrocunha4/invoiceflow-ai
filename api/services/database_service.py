@@ -138,3 +138,38 @@ def update_invoice_status(
         return response.data[0]
 
     return None
+
+def get_invoice_stats():
+    response = (
+        supabase
+        .table("invoices")
+        .select("status,total")
+        .execute()
+    )
+
+    invoices = response.data
+
+    approved = 0
+    needs_review = 0
+    rejected = 0
+    total_amount = 0.0
+
+    for invoice in invoices:
+        status = invoice.get("status")
+
+        if status == "approved":
+            approved += 1
+        elif status == "needs_review":
+            needs_review += 1
+        elif status == "rejected":
+            rejected += 1
+
+        total_amount += float(invoice.get("total") or 0)
+
+    return {
+        "total_invoices": len(invoices),
+        "approved": approved,
+        "needs_review": needs_review,
+        "rejected": rejected,
+        "total_amount": round(total_amount, 2)
+    }

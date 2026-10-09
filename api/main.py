@@ -1,6 +1,8 @@
 import hashlib
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.staticfiles import StaticFiles
 
 from api.models.invoice import InvoiceData
 from api.models.invoice_status import InvoiceStatusUpdate
@@ -11,6 +13,7 @@ from api.services.database_service import (
     find_invoice_by_number,
     get_all_invoices,
     get_invoice_by_id,
+    get_invoice_stats,
     save_invoice,
     update_invoice_status
 )
@@ -23,11 +26,40 @@ from api.services.pdf_service import extract_text_from_pdf
 app = FastAPI(
     title="InvoiceFlow AI API",
     description="API for intelligent invoice processing and automation.",
-    version="0.1.0"
+    version="0.1.0",
+    docs_url=None
 )
 
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 
+
+# ---------------------------------------------------------
+# Static files
+# ---------------------------------------------------------
+
+app.mount(
+    "/icon",
+    StaticFiles(directory="api/icon"),
+    name="icon"
+)
+
+
+# ---------------------------------------------------------
+# Custom Swagger UI
+# ---------------------------------------------------------
+
+@app.get("/docs", include_in_schema=False)
+def custom_swagger_ui():
+    return get_swagger_ui_html(
+        openapi_url=app.openapi_url,
+        title="InvoiceFlow AI API",
+        swagger_favicon_url= "/icon/favicon.png"
+    )
+
+
+# ---------------------------------------------------------
+# General
+# ---------------------------------------------------------
 
 @app.get("/")
 def root():
@@ -43,6 +75,22 @@ def health_check():
         "status": "healthy"
     }
 
+
+# ---------------------------------------------------------
+# Dashboard
+# ---------------------------------------------------------
+
+@app.get("/dashboard/stats")
+def dashboard_stats():
+
+    stats = get_invoice_stats()
+
+    return stats
+
+
+# ---------------------------------------------------------
+# Invoice retrieval
+# ---------------------------------------------------------
 
 @app.get("/invoices")
 def list_invoices():
@@ -68,6 +116,10 @@ def get_invoice(invoice_id: int):
 
     return invoice
 
+
+# ---------------------------------------------------------
+# Invoice human review
+# ---------------------------------------------------------
 
 @app.patch("/invoices/{invoice_id}/status")
 def change_invoice_status(
@@ -100,6 +152,10 @@ def change_invoice_status(
     }
 
 
+# ---------------------------------------------------------
+# Invoice validation
+# ---------------------------------------------------------
+
 @app.post("/invoices/validate")
 def validate_invoice(invoice: InvoiceData):
 
@@ -110,6 +166,10 @@ def validate_invoice(invoice: InvoiceData):
         "validation": validation_result
     }
 
+
+# ---------------------------------------------------------
+# AI invoice processing
+# ---------------------------------------------------------
 
 @app.post("/invoices/extract")
 async def extract_invoice(file: UploadFile = File(...)):
@@ -212,6 +272,10 @@ async def extract_invoice(file: UploadFile = File(...)):
         "validation": validation_result
     }
 
+
+# ---------------------------------------------------------
+# Raw PDF upload / extraction test
+# ---------------------------------------------------------
 
 @app.post("/invoices/upload")
 async def upload_invoice(file: UploadFile = File(...)):
