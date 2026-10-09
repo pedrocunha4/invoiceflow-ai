@@ -7,6 +7,8 @@ from api.services.ai_service import extract_invoice_data
 from api.services.database_service import (
     find_invoice_by_hash,
     find_invoice_by_number,
+    get_all_invoices,
+    get_invoice_by_id,
     save_invoice
 )
 from api.services.invoice_validation_service import (
@@ -37,6 +39,31 @@ def health_check():
     return {
         "status": "healthy"
     }
+
+
+@app.get("/invoices")
+def list_invoices():
+
+    invoices = get_all_invoices()
+
+    return {
+        "count": len(invoices),
+        "invoices": invoices
+    }
+
+
+@app.get("/invoices/{invoice_id}")
+def get_invoice(invoice_id: int):
+
+    invoice = get_invoice_by_id(invoice_id)
+
+    if not invoice:
+        raise HTTPException(
+            status_code=404,
+            detail="Invoice not found."
+        )
+
+    return invoice
 
 
 @app.post("/invoices/validate")

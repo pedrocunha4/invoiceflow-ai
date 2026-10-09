@@ -58,6 +58,34 @@ def find_invoice_by_number(
     return None
 
 
+def get_all_invoices():
+    response = (
+        supabase
+        .table("invoices")
+        .select("*")
+        .order("created_at", desc=True)
+        .execute()
+    )
+
+    return response.data
+
+
+def get_invoice_by_id(invoice_id: int):
+    response = (
+        supabase
+        .table("invoices")
+        .select("*")
+        .eq("id", invoice_id)
+        .limit(1)
+        .execute()
+    )
+
+    if response.data:
+        return response.data[0]
+
+    return None
+
+
 def save_invoice(
     file_name: str,
     file_hash: str,
