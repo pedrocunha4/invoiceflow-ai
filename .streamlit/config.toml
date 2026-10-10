@@ -1,0 +1,14 @@
+[theme]
+base = "dark"
+primaryColor = "#2563EB"
+backgroundColor = "#0B1220"
+secondaryBackgroundColor = "#111B2E"
+textColor = "#E2E8F0"
+borderColor = "#1F2D47"
+baseRadius = "large"
+showWidgetBorder = true
+dataframeBorderColor = "#1F2D47"
+dataframeHeaderBackgroundColor = "#111B2E"
+greenColor = "#22C55E"
+orangeColor = "#F59E0B"
+redColor = "#EF4444"

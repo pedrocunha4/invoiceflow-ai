@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import os
 import re
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+import pandas as pd
 import requests
 import streamlit as st
 
@@ -10,7 +13,12 @@ import streamlit as st
 # Configuration
 # ---------------------------------------------------------------------------
 
-API_BASE_URL = "http://127.0.0.1:8000"
+API_BASE_URL = os.getenv(
+    "INVOICEFLOW_API_URL",
+    "http://127.0.0.1:8000"
+)
+
+FAVICON_PATH = Path(__file__).parent / "icon" / "favicon.png"
 
 NAV_PAGES = ["Dashboard", "Process Invoice", "Invoice Review"]
 
@@ -28,42 +36,51 @@ CURRENCY_SYMBOLS = {"EUR": "€", "USD": "$", "GBP": "£"}
 VALIDATION_KEYS = ("validation_errors", "validation_error", "validation_issues")
 
 # ---------------------------------------------------------------------------
-# Styling (single, centralised CSS block - no component HTML anywhere else)
+# Styling
 # ---------------------------------------------------------------------------
+# Colours, borders, radius and widget backgrounds come from the native theme
+# in .streamlit/config.toml. This block only keeps layout, sidebar, spacing,
+# the review-decision buttons and branding.
 
 CSS = """
 <style>
-.stApp { background-color: #0B1220; color: #E2E8F0; }
-.stApp p, .stApp label, .stApp li, [data-testid="stMarkdownContainer"] { color: #E2E8F0; }
 [data-testid="stHeader"] { background: transparent; }
 [data-testid="stAppDeployButton"], .stDeployButton, #MainMenu, footer { display: none !important; }
 .block-container { padding-top: 2.2rem; padding-bottom: 2rem; max-width: 1200px; }
-h1 { font-size: 1.9rem !important; font-weight: 650 !important; letter-spacing: -0.02em; color: #F8FAFC !important; padding-bottom: 0.1rem !important; }
-h3 { font-size: 1.05rem !important; font-weight: 600 !important; color: #F1F5F9 !important; margin-top: 0.8rem; }
+
+/* Typography & vertical rhythm */
+h1 { font-size: 1.9rem !important; font-weight: 650 !important; letter-spacing: -0.02em; padding-bottom: 0.1rem !important; }
+h3 { font-size: 1.05rem !important; font-weight: 600 !important; margin-top: 0.6rem; padding-bottom: 0.2rem !important; }
 h4 { font-size: 1.05rem !important; font-weight: 600 !important; }
 [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p { color: #94A3B8 !important; }
-hr { border-color: #1F2D47 !important; margin: 1.2rem 0 !important; }
+[data-testid="stCaptionContainer"] { margin-bottom: 0.5rem; }
+hr { margin: 1rem 0 !important; }
+
+/* Sidebar */
 [data-testid="stSidebar"] { background-color: #0A1222; border-right: 1px solid #1B2740; }
-[data-testid="stSidebar"] [data-testid="stRadio"] > div { gap: 0.25rem; }
-[data-testid="stSidebar"] [data-testid="stRadio"] label { padding: 0.55rem 0.8rem; border-radius: 10px; width: 100%; cursor: pointer; border: 1px solid transparent; }
+[data-testid="stSidebar"] [data-testid="stRadioGroup"] { gap: 0.3rem; align-items: stretch !important; }
+[data-testid="stSidebar"] [data-testid="stRadioGroup"] > div { width: 100%; }
+[data-testid="stSidebar"] [data-testid="stRadioOption"] > div > div:first-child:not([data-testid="stMarkdownContainer"]) { display: none !important; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label { padding: 0.75rem 1rem; border-radius: 10px; width: 100%; cursor: pointer; border: 1px solid transparent; }
+[data-testid="stSidebar"] [data-testid="stRadio"] label p { font-size: 1.05rem; }
 [data-testid="stSidebar"] [data-testid="stRadio"] label:hover { background-color: #111B2E; }
 [data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) { background-color: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.35); }
-[data-testid="stSidebar"] [data-testid="stRadio"] label > div:first-child:not([data-testid="stMarkdownContainer"]) { display: none; }
+
+/* Metric cards */
 [data-testid="stMetric"] { background-color: #111B2E; border: 1px solid #1F2D47; border-radius: 12px; padding: 1rem 1.1rem; }
 [data-testid="stMetricLabel"], [data-testid="stMetricLabel"] p { color: #94A3B8 !important; font-size: 0.8rem; }
 [data-testid="stMetricValue"] { color: #F8FAFC; font-size: 1.7rem; font-weight: 600; }
-[data-testid="stVerticalBlockBorderWrapper"] { border-color: #1F2D47 !important; }
-[data-testid="stDataFrame"] { border: 1px solid #1F2D47; border-radius: 12px; overflow: hidden; }
-[data-testid="stExpander"] { border: 1px solid #1F2D47; border-radius: 12px; }
-[data-testid="stAlert"] { border-radius: 10px; }
-[data-testid="stFileUploaderDropzone"] {background-color: #0D1626; border: 1.5px dashed #2B3C5E; border-radius: 12px;  padding: 2.8rem 1.5rem; min-height: 150px;}
+
+/* File uploader (layout / dimensions) */
+[data-testid="stFileUploaderDropzone"] { background-color: #0D1626; border: 1.5px dashed #2B3C5E; padding: 2.8rem 1.5rem; min-height: 150px; }
 [data-testid="stFileUploaderDropzone"]:hover { border-color: #3B82F6; }
-[data-baseweb="select"] > div, [data-baseweb="input"] > div { background-color: #0D1626 !important; border-color: #26354F !important; border-radius: 10px !important; }
-.stButton > button { width: 100%; min-height: 2.6rem; border-radius: 10px; border: 1px solid #26354F; background-color: #111B2E; color: #E2E8F0; font-weight: 500; transition: all 0.15s ease; }
-.stButton > button:hover { border-color: #3B82F6; color: #FFFFFF; }
-.stButton > button:disabled { opacity: 0.4; }
-.stButton > button[kind="primary"], .stButton > button[data-testid="stBaseButton-primary"] { background-color: #2563EB; border-color: #2563EB; color: #FFFFFF; }
-.stButton > button[kind="primary"]:hover, .stButton > button[data-testid="stBaseButton-primary"]:hover { background-color: #1D4ED8; border-color: #1D4ED8; }
+
+/* Buttons: full width + size */
+.stElementContainer:has(.stButton), .element-container:has(.stButton), [data-testid="stElementContainer"]:has([data-testid="stButton"]) { width: 100% !important; }
+.stButton, [data-testid="stButton"] { width: 100% !important; }
+.stButton > button { width: 100%; min-height: 2.6rem; font-weight: 500; transition: all 0.15s ease; }
+
+/* Review decision buttons */
 .st-key-btn_approve button { border-color: #15803D; color: #4ADE80; }
 .st-key-btn_approve button:hover:not(:disabled) { background-color: rgba(34, 197, 94, 0.12); border-color: #22C55E; color: #4ADE80; }
 .st-key-btn_review button { border-color: #B45309; color: #FBBF24; }
@@ -121,6 +138,22 @@ def safe_json(response: requests.Response) -> Any:
         return response.json()
     except ValueError:
         return None
+
+
+def extract_detail_message(
+    response: requests.Response,
+    default: str
+) -> str:
+    body = safe_json(response)
+    detail = body.get("detail") if isinstance(body, dict) else None
+
+    if isinstance(detail, dict):
+        return detail.get("message", default)
+
+    if isinstance(detail, str):
+        return detail
+
+    return default
 
 
 def set_flash(level: str, message: str) -> None:
@@ -224,46 +257,23 @@ def process_invoice(uploaded_file: Any) -> Tuple[str, Any]:
 
     # Duplicate invoice
     if response.status_code == 409:
-        body = safe_json(response)
-
-        detail = (
-            body.get("detail")
-            if isinstance(body, dict)
-            else None
-        )
-
-        message = "Duplicate invoice detected."
-
-        if isinstance(detail, dict):
-            message = detail.get(
-                "message",
-                message
+        return (
+            "duplicate",
+            extract_detail_message(
+                response,
+                "Duplicate invoice detected."
             )
-
-        elif isinstance(detail, str):
-            message = detail
-
-        return "duplicate", message
+        )
 
     # PDF exists but is not a valid invoice
     if response.status_code == 422:
-        body = safe_json(response)
-
-        detail = (
-            body.get("detail")
-            if isinstance(body, dict)
-            else None
-        )
-
-        if isinstance(detail, str):
-            message = detail
-        else:
-            message = (
-                "The uploaded PDF could not be "
-                "recognized as a valid invoice."
+        return (
+            "invalid_invoice",
+            extract_detail_message(
+                response,
+                "The uploaded PDF could not be recognized as a valid invoice."
             )
-
-        return "invalid_invoice", message
+        )
 
     # Other errors
     body = safe_json(response)
@@ -331,6 +341,75 @@ def render_metrics(stats: Dict[str, Any]) -> None:
     ]
     for column, (label, value) in zip(columns, cards):
         column.metric(label, value)
+
+
+SUPPLIER_SUFFIX_RE = re.compile(r"[,\s]+LDA\.?\s*$", re.IGNORECASE)
+
+
+def chart_label(name: str) -> str:
+    """Visual-only label: strips a trailing ", LDA." / " LDA" style suffix."""
+    return SUPPLIER_SUFFIX_RE.sub("", name).strip() or name
+
+
+def supplier_totals(invoices: List[Dict[str, Any]], limit: int = 10) -> pd.DataFrame:
+    """Sum invoice totals per supplier and keep the top `limit` suppliers.
+
+    Ignores missing/invalid totals. Returns a DataFrame with columns
+    "Supplier" (display label) and "Total", sorted by total (highest
+    first). Empty if there is nothing valid to chart. Source data is
+    never modified.
+    """
+    totals: Dict[str, float] = {}
+    for invoice in invoices:
+        amount = to_float(invoice.get("total"))
+        if amount is None or amount != amount:  # None or NaN
+            continue
+        supplier = str(invoice.get("supplier_name") or "").strip() or "Unknown supplier"
+        totals[supplier] = totals.get(supplier, 0.0) + amount
+
+    frame = pd.DataFrame(
+        {"Supplier": list(totals.keys()), "Total": list(totals.values())}
+    )
+    if frame.empty:
+        return frame
+
+    frame = (
+        frame.sort_values("Total", ascending=False)
+        .head(limit)
+        .reset_index(drop=True)
+    )
+
+    # Clean labels for display only; if two different suppliers collapse to
+    # the same label, keep their full names so the bars are not merged.
+    labels = frame["Supplier"].map(chart_label)
+    frame["Supplier"] = frame["Supplier"].where(
+        labels.duplicated(keep=False), labels
+    )
+    return frame
+
+
+def render_supplier_chart(invoices: List[Dict[str, Any]]) -> None:
+    section_header(
+        "Processed Value by Supplier",
+        "Top 10 suppliers by total processed invoice value.",
+    )
+
+    data = supplier_totals(invoices)
+    if data.empty:
+        st.info("No invoice values available to chart yet.")
+        return
+
+    with st.container(border=True):
+        st.bar_chart(
+            data,
+            x="Supplier",
+            y="Total",
+            x_label="Supplier",
+            y_label="Processed value (€)",
+            horizontal=True,
+            sort="-Total",
+            height=min(420, max(200, 48 * len(data) + 60)),
+        )
 
 
 def filter_invoices(
@@ -422,6 +501,7 @@ def render_dashboard() -> None:
     if error:
         st.error(f"Unable to load invoices: {error}")
     else:
+        render_supplier_chart(invoices)
         render_invoice_table(invoices)
 
 
@@ -457,15 +537,11 @@ def render_processing_result(
 
     elif outcome == "duplicate":
 
-        st.warning(
-            f"Duplicate invoice: {payload}"
-        )
+        st.warning(payload)
 
     elif outcome == "invalid_invoice":
 
-        st.warning(
-            f"Invalid invoice: {payload}"
-        )
+        st.warning(payload)
 
     elif outcome == "network":
 
@@ -526,7 +602,7 @@ def render_upload_section() -> None:
             type="primary",
             disabled=uploaded_file is None,
             key="btn_process",
-            use_container_width=True,
+            width="stretch",
         )
 
     if clicked and uploaded_file is not None:
@@ -608,31 +684,94 @@ def render_validation_card(invoice: Dict[str, Any]) -> None:
             st.success("No validation issues reported.")
 
 
-def render_decision_panel(invoice_id: Any, current_status: Any) -> None:
+def handle_review_decision(
+    invoice_id: Any,
+    new_status: str,
+    level: str,
+    message: str
+) -> None:
+
+    ok, error = update_invoice_status(
+        invoice_id,
+        new_status
+    )
+
+    if ok:
+        set_flash(
+            level,
+            message
+        )
+
+    else:
+        set_flash(
+            "error",
+            error
+        )
+
+
+def render_decision_panel(
+    invoice_id: Any,
+    current_status: Any
+) -> None:
+
     decisions = [
-        ("Approve", "approved", "btn_approve", "success", "Invoice approved."),
+        (
+            "Approve",
+            "approved",
+            "btn_approve",
+            "success",
+            "Invoice approved."
+        ),
         (
             "Needs Review",
             "needs_review",
             "btn_review",
             "warning",
-            "Invoice marked for review.",
+            "Invoice marked for review."
         ),
-        ("Reject", "rejected", "btn_reject", "error", "Invoice rejected."),
+        (
+            "Reject",
+            "rejected",
+            "btn_reject",
+            "error",
+            "Invoice rejected."
+        ),
     ]
+
     with st.container(border=True):
+
         st.markdown("**Review decision**")
-        st.caption("Your decision is saved immediately and reflected in the registry.")
+
+        st.caption(
+            "Your decision is saved immediately "
+            "and reflected in the registry."
+        )
+
         columns = st.columns(3)
-        for column, (label, status, key, level, message) in zip(columns, decisions):
+
+        for column, (
+            label,
+            status,
+            key,
+            level,
+            message
+        ) in zip(columns, decisions):
+
             with column:
-                if st.button(label, key=key, disabled=current_status == status):
-                    ok, error = update_invoice_status(invoice_id, status)
-                    if ok:
-                        set_flash(level, message)
-                        st.rerun()
-                    else:
-                        st.error(error)
+
+                st.button(
+                    label,
+                    key=key,
+                    disabled=current_status == status,
+                    on_click=handle_review_decision,
+                    args=(
+                        invoice_id,
+                        status,
+                        level,
+                        message
+                    ),
+                    width="stretch",
+                )
 
 
 def render_review_workspace(invoices: List[Dict[str, Any]]) -> None:
@@ -693,7 +832,7 @@ def render_review_page() -> None:
 
 
 def main() -> None:
-    st.set_page_config(page_title="InvoiceFlow AI", page_icon="dashboard/icon/favicon.png", layout="wide")
+    st.set_page_config(page_title="InvoiceFlow AI", page_icon=str(FAVICON_PATH), layout="wide")
     inject_css()
 
     api_online = check_api_health()
@@ -704,7 +843,7 @@ def main() -> None:
     if not api_online:
         st.error(
             f"The API is not reachable at {API_BASE_URL}. "
-            "Start the FastAPI server and click Refresh data."
+            "Start the FastAPI server and reload the page."
         )
         return
 
