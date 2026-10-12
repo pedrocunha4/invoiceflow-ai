@@ -9,6 +9,7 @@ from api.models.invoice import InvoiceData
 from api.models.invoice_status import InvoiceStatusUpdate
 
 from api.services.ai_service import extract_invoice_data
+from api.services.audit_service import create_audit_log
 from api.services.make_service import send_make_event
 from api.services.database_service import (
     find_invoice_by_hash,
@@ -138,6 +139,9 @@ def change_invoice_status(
             detail="Invoice not found."
         )
 
+    # Store previous status before updating
+    previous_status = invoice.get("status")
+
     # Update invoice status in Supabase
     updated_invoice = update_invoice_status(
         invoice_id,
@@ -150,16 +154,50 @@ def change_invoice_status(
             detail="Failed to update invoice status."
         )
 
-    # Notify Make about the manual status change
-    make_notified = send_make_event(
+    # Register the human review decision
+    create_audit_log(
+        event_type=status_update.status,
+        invoice_id=invoice_id,
+        source="human_review",
+        file_name=updated_invoice.get("file_name"),
+        file_hash=updated_invoice.get("file_hash"),
+        details={
+            "previous_status": previous_status,
+            "new_status": status_update.status
+        }
+    )
+
+    # Dispatch status change event to Make
+    make_result = send_make_event(
         event_type="invoice_status_changed",
         invoice=updated_invoice
+    )
+
+    # Register Make dispatch result
+    create_audit_log(
+        event_type=(
+            "automation_dispatched"
+            if make_result["dispatched"]
+            else "automation_failed"
+        ),
+        invoice_id=invoice_id,
+        source="automation",
+        file_name=updated_invoice.get("file_name"),
+        file_hash=updated_invoice.get("file_hash"),
+        details={
+            "provider": "make",
+            "make_event": "invoice_status_changed",
+            "invoice_status": status_update.status,
+            "dispatched": make_result["dispatched"],
+            "http_status": make_result["status_code"],
+            "error": make_result["error"]
+        }
     )
 
     return {
         "message": "Invoice status updated successfully.",
         "invoice": updated_invoice,
-        "automation_triggered": make_notified
+        "automation_dispatched": make_result["dispatched"]
     }
 
 
@@ -210,10 +248,35 @@ async def extract_invoice(file: UploadFile = File(...)):
     # Generate SHA-256 fingerprint
     file_hash = hashlib.sha256(content).hexdigest()
 
+    # Register that the invoice document was received
+    create_audit_log(
+        event_type="invoice_received",
+        source="api",
+        file_name=file.filename,
+        file_hash=file_hash,
+        details={
+            "content_type": file.content_type,
+            "size_bytes": len(content)
+        }
+    )
+
     # Check if exactly the same PDF was already processed
     existing_invoice = find_invoice_by_hash(file_hash)
 
     if existing_invoice:
+
+        create_audit_log(
+            event_type="duplicate_detected",
+            invoice_id=existing_invoice["id"],
+            source="api",
+            file_name=file.filename,
+            file_hash=file_hash,
+            details={
+                "reason": "file_hash",
+                "message": "This PDF has already been processed."
+            }
+        )
+
         raise HTTPException(
             status_code=409,
             detail={
@@ -255,6 +318,24 @@ async def extract_invoice(file: UploadFile = File(...)):
             )
         )
 
+    # Register successful AI extraction
+    create_audit_log(
+        event_type="ai_extracted",
+        source="ai",
+        file_name=file.filename,
+        file_hash=file_hash,
+        details={
+            "supplier_name": invoice.supplier_name,
+            "supplier_vat_number": invoice.supplier_vat_number,
+            "invoice_number": invoice.invoice_number,
+            "invoice_date": invoice.invoice_date.isoformat(),
+            "subtotal": invoice.subtotal,
+            "vat_amount": invoice.vat_amount,
+            "total": invoice.total,
+            "currency": invoice.currency
+        }
+    )
+
     # Check if same supplier + invoice number already exists
     existing_invoice = find_invoice_by_number(
         invoice.supplier_vat_number,
@@ -262,6 +343,24 @@ async def extract_invoice(file: UploadFile = File(...)):
     )
 
     if existing_invoice:
+
+        create_audit_log(
+            event_type="duplicate_detected",
+            invoice_id=existing_invoice["id"],
+            source="api",
+            file_name=file.filename,
+            file_hash=file_hash,
+            details={
+                "reason": "invoice_number",
+                "supplier_vat_number": invoice.supplier_vat_number,
+                "invoice_number": invoice.invoice_number,
+                "message": (
+                    "An invoice with this supplier and "
+                    "invoice number already exists."
+                )
+            }
+        )
+
         raise HTTPException(
             status_code=409,
             detail={
@@ -278,6 +377,19 @@ async def extract_invoice(file: UploadFile = File(...)):
     # Apply business validation rules
     validation_result = validate_invoice_business_rules(invoice)
 
+    # Register business validation result
+    create_audit_log(
+        event_type="validation_completed",
+        source="validation",
+        file_name=file.filename,
+        file_hash=file_hash,
+        details={
+            "is_valid": validation_result["is_valid"],
+            "status": validation_result["status"],
+            "errors": validation_result["errors"]
+        }
+    )
+
     # Save invoice in Supabase
     saved_invoice = save_invoice(
         file_name=file.filename,
@@ -286,10 +398,48 @@ async def extract_invoice(file: UploadFile = File(...)):
         validation=validation_result
     )
 
-    # Notify Make about the processed invoice
-    make_notified = send_make_event(
+    # Register invoice creation
+    create_audit_log(
+        event_type="invoice_created",
+        invoice_id=saved_invoice["id"],
+        source="api",
+        file_name=file.filename,
+        file_hash=file_hash,
+        details={
+            "status": saved_invoice["status"],
+            "supplier_name": saved_invoice["supplier_name"],
+            "supplier_vat_number": saved_invoice["supplier_vat_number"],
+            "invoice_number": saved_invoice["invoice_number"],
+            "total": saved_invoice["total"],
+            "currency": saved_invoice["currency"]
+        }
+    )
+
+    # Dispatch processed invoice event to Make
+    make_result = send_make_event(
         event_type="invoice_processed",
         invoice=saved_invoice
+    )
+
+    # Register Make dispatch result
+    create_audit_log(
+        event_type=(
+            "automation_dispatched"
+            if make_result["dispatched"]
+            else "automation_failed"
+        ),
+        invoice_id=saved_invoice["id"],
+        source="automation",
+        file_name=file.filename,
+        file_hash=file_hash,
+        details={
+            "provider": "make",
+            "make_event": "invoice_processed",
+            "invoice_status": saved_invoice["status"],
+            "dispatched": make_result["dispatched"],
+            "http_status": make_result["status_code"],
+            "error": make_result["error"]
+        }
     )
 
     return {
@@ -299,7 +449,7 @@ async def extract_invoice(file: UploadFile = File(...)):
         "sha256": file_hash,
         "invoice": invoice.model_dump(mode="json"),
         "validation": validation_result,
-        "automation_triggered": make_notified
+        "automation_dispatched": make_result["dispatched"]
     }
 
 

@@ -15,16 +15,21 @@ MAKE_WEBHOOK_API_KEY = os.getenv("MAKE_WEBHOOK_API_KEY")
 def send_make_event(
     event_type: str,
     invoice: Dict[str, Any]
-) -> bool:
+) -> Dict[str, Any]:
     """
     Send an invoice event to the Make webhook.
 
-    Returns True if Make accepted the event.
-    Returns False if the webhook is unavailable or not configured.
+    A successful HTTP response only means that Make accepted
+    the webhook request. It does not guarantee that the Make
+    scenario completed successfully.
     """
 
     if not MAKE_WEBHOOK_URL or not MAKE_WEBHOOK_API_KEY:
-        return False
+        return {
+            "dispatched": False,
+            "status_code": None,
+            "error": "Make webhook is not configured."
+        }
 
     payload = {
         "event": event_type,
@@ -48,7 +53,21 @@ def send_make_event(
 
         response.raise_for_status()
 
-        return True
+        return {
+            "dispatched": True,
+            "status_code": response.status_code,
+            "error": None
+        }
 
-    except requests.RequestException:
-        return False
+    except requests.RequestException as exc:
+        status_code = (
+            exc.response.status_code
+            if exc.response is not None
+            else None
+        )
+
+        return {
+            "dispatched": False,
+            "status_code": status_code,
+            "error": str(exc)
+        }
