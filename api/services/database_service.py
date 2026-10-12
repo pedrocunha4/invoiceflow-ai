@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 from dotenv import load_dotenv
 from supabase import create_client, Client
@@ -90,11 +91,13 @@ def save_invoice(
     file_name: str,
     file_hash: str,
     invoice: InvoiceData,
-    validation: dict
+    validation: dict,
+    file_path: Optional[str] = None
 ):
     data = {
         "file_name": file_name,
         "file_hash": file_hash,
+        "file_path": file_path,
 
         "supplier_name": invoice.supplier_name,
         "supplier_vat_number": invoice.supplier_vat_number,
@@ -138,6 +141,7 @@ def update_invoice_status(
         return response.data[0]
 
     return None
+
 
 def get_invoice_stats():
     response = (

@@ -93,6 +93,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "registry.empty": "No invoices have been processed yet. Open Process Invoice to upload your first PDF.",
         "registry.search": "Search by supplier or invoice number",
         "registry.all_statuses": "All statuses",
+        "registry.date_range": "Invoice date range",
         "registry.showing": "Showing {shown} of {total} invoices",
         "registry.no_match": "No invoices match your filters.",
         "col.id": "ID",
@@ -131,6 +132,8 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "review.no_number": "no number",
         "review.current_status": "Current status",
         "review.invoice_no": "Invoice #{id}",
+        "review.view_pdf": "View original PDF",
+        "review.pdf_unavailable": "Original PDF not available for this invoice.",
         "card.supplier": "Supplier details",
         "card.financial": "Financial summary",
         "field.supplier": "Supplier",
@@ -197,6 +200,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "registry.empty": "Ainda não foram processadas faturas. Abra Processar fatura para carregar o primeiro PDF.",
         "registry.search": "Pesquisar por fornecedor ou número da fatura",
         "registry.all_statuses": "Todos os estados",
+        "registry.date_range": "Intervalo de datas da fatura",
         "registry.showing": "A mostrar {shown} de {total} faturas",
         "registry.no_match": "Nenhuma fatura corresponde aos filtros.",
         "col.id": "ID",
@@ -235,6 +239,8 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "review.no_number": "sem número",
         "review.current_status": "Estado atual",
         "review.invoice_no": "Fatura n.º {id}",
+        "review.view_pdf": "Ver PDF original",
+        "review.pdf_unavailable": "O PDF original não está disponível para esta fatura.",
         "card.supplier": "Dados do fornecedor",
         "card.financial": "Resumo financeiro",
         "field.supplier": "Fornecedor",
@@ -679,52 +685,157 @@ def render_supplier_chart(invoices: List[Dict[str, Any]]) -> None:
             sort="-Total",
             height=min(420, max(200, 48 * len(data) + 60)),
         )
+def parse_invoice_date(value: Any):
+    """Convert an invoice date into a Python date object."""
 
+    if not value:
+        return None
+
+    try:
+        return pd.to_datetime(
+            value,
+            errors="raise"
+        ).date()
+
+    except (ValueError, TypeError, OverflowError):
+        return None
 
 def filter_invoices(
-    invoices: List[Dict[str, Any]], query: str, status_key: str
+    invoices: List[Dict[str, Any]],
+    query: str,
+    status_key: str,
+    start_date: Any = None,
+    end_date: Any = None
 ) -> List[Dict[str, Any]]:
-    """`status_key` is "all" or one of the internal status keys."""
+    """
+    Filter invoices by search query, status and invoice date range.
+
+    `status_key` is "all" or one of the internal status keys.
+    """
+
     query = query.strip().lower()
     result = []
+
     for invoice in invoices:
-        if status_key != "all" and invoice.get("status") != status_key:
+
+        # Status filter
+        if (
+            status_key != "all"
+            and invoice.get("status") != status_key
+        ):
             continue
+
+        # Search filter
         haystack = (
-            f'{invoice.get("supplier_name", "")} {invoice.get("invoice_number", "")}'
+            f'{invoice.get("supplier_name", "")} '
+            f'{invoice.get("invoice_number", "")}'
         ).lower()
+
         if query and query not in haystack:
             continue
+
+        # Invoice date filter
+        if start_date is not None and end_date is not None:
+
+            invoice_date = parse_invoice_date(
+                invoice.get("invoice_date")
+            )
+
+            if invoice_date is None:
+                continue
+
+            if not (
+                start_date
+                <= invoice_date
+                <= end_date
+            ):
+                continue
+
         result.append(invoice)
+
     return result
 
 
-def render_invoice_table(invoices: List[Dict[str, Any]]) -> None:
-    section_header(t("registry.title"), t("registry.caption"))
+def render_invoice_table(
+    invoices: List[Dict[str, Any]]
+) -> None:
+
+    section_header(
+        t("registry.title"),
+        t("registry.caption")
+    )
+
     if not invoices:
         st.info(t("registry.empty"))
         return
 
     with st.container(border=True):
-        search_col, status_col = st.columns([3, 1.3])
+
+        search_col, status_col, date_col = st.columns(
+            [2.4, 1.2, 1.7]
+        )
+
+        # Search
         query = search_col.text_input(
             "Search",
             placeholder=t("registry.search"),
             label_visibility="collapsed",
             key="registry_search",
         )
+
+        # Status
         status_key = status_col.selectbox(
             "Status filter",
             ["all"] + list(STATUS_META),
             format_func=lambda key: (
-                t("registry.all_statuses") if key == "all" else t(f"status.{key}")
+                t("registry.all_statuses")
+                if key == "all"
+                else t(f"status.{key}")
             ),
             label_visibility="collapsed",
             key="registry_status",
         )
-        filtered = filter_invoices(invoices, query, status_key)
+
+
+        date_format = (
+            "DD/MM/YYYY"
+            if current_lang() == "PT"
+            else "YYYY-MM-DD"
+)
+        
+        # Invoice date range
+        date_range = date_col.date_input(
+            t("registry.date_range"),
+            value=(),
+            key="registry_date_range",
+            format=date_format,
+            label_visibility="collapsed",
+)
+
+        start_date = None
+        end_date = None
+
+        if (
+            isinstance(date_range, (tuple, list))
+            and len(date_range) == 2
+        ):
+            start_date, end_date = date_range
+
+        # Apply all filters together
+        filtered = filter_invoices(
+            invoices=invoices,
+            query=query,
+            status_key=status_key,
+            start_date=start_date,
+            end_date=end_date,
+        )
+
         st.caption(
-            t("registry.showing", shown=len(filtered), total=len(invoices))
+            t(
+                "registry.showing",
+                shown=len(filtered),
+                total=len(invoices)
+            )
         )
 
         if not filtered:
@@ -734,24 +845,57 @@ def render_invoice_table(invoices: List[Dict[str, Any]]) -> None:
         col = {
             name: t(f"col.{name}")
             for name in (
-                "id", "supplier", "vat", "number",
-                "date", "amount", "currency", "status",
+                "id",
+                "supplier",
+                "vat",
+                "number",
+                "date",
+                "amount",
+                "currency",
+                "status",
             )
         }
 
         rows = []
+
         for invoice in filtered:
-            meta = status_meta(invoice.get("status"))
+
+            meta = status_meta(
+                invoice.get("status")
+            )
+
             rows.append(
                 {
-                    col["id"]: invoice.get("id"),
-                    col["supplier"]: invoice.get("supplier_name"),
-                    col["vat"]: invoice.get("supplier_vat_number"),
-                    col["number"]: invoice.get("invoice_number"),
-                    col["date"]: invoice.get("invoice_date"),
-                    col["amount"]: to_float(invoice.get("total")),
-                    col["currency"]: invoice.get("currency"),
-                    col["status"]: f'{meta["dot"]} {meta["label"]}',
+                    col["id"]:
+                        invoice.get("id"),
+
+                    col["supplier"]:
+                        invoice.get("supplier_name"),
+
+                    col["vat"]:
+                        invoice.get(
+                            "supplier_vat_number"
+                        ),
+
+                    col["number"]:
+                        invoice.get("invoice_number"),
+
+                    col["date"]:
+                        invoice.get("invoice_date"),
+
+                    col["amount"]:
+                        to_float(
+                            invoice.get("total")
+                        ),
+
+                    col["currency"]:
+                        invoice.get("currency"),
+
+                    col["status"]:
+                        (
+                            f'{meta["dot"]} '
+                            f'{meta["label"]}'
+                        ),
                 }
             )
 
@@ -759,12 +903,18 @@ def render_invoice_table(invoices: List[Dict[str, Any]]) -> None:
             rows,
             hide_index=True,
             column_config={
-                col["id"]: st.column_config.NumberColumn(
-                    col["id"], format="%d", width="small"
-                ),
-                col["amount"]: st.column_config.NumberColumn(
-                    col["amount"], format="%.2f"
-                ),
+                col["id"]:
+                    st.column_config.NumberColumn(
+                        col["id"],
+                        format="%d",
+                        width="small"
+                    ),
+
+                col["amount"]:
+                    st.column_config.NumberColumn(
+                        col["amount"],
+                        format="%.2f"
+                    ),
             },
         )
 
@@ -911,6 +1061,31 @@ def render_review_header(invoice: Dict[str, Any], status: Any) -> None:
     with right:
         st.caption(t("review.current_status"))
         st.markdown(f"#### :{meta['color']}[● {meta['label']}]")
+
+
+def render_pdf_action(invoice: Dict[str, Any]) -> None:
+    """Link to the original PDF. The API generates the signed URL and
+    redirects; the dashboard only points at the endpoint."""
+    invoice_id = invoice.get("id")
+    file_path = invoice.get("file_path")
+
+    if not file_path:
+        st.button(
+            t("review.view_pdf"),
+            disabled=True,
+            key=f"pdf_unavailable_{invoice_id}",
+            width="stretch",
+        )
+        st.caption(t("review.pdf_unavailable"))
+        return
+
+    pdf_url = f"{API_BASE_URL}/invoices/{invoice_id}/pdf"
+
+    st.link_button(
+        t("review.view_pdf"),
+        pdf_url,
+        width="stretch",
+    )
 
 
 def render_supplier_card(invoice: Dict[str, Any]) -> None:
@@ -1081,11 +1256,16 @@ def render_review_workspace(invoices: List[Dict[str, Any]]) -> None:
     status = invoice.get("status")
 
     render_review_header(invoice, status)
+
     detail_col, finance_col = st.columns([1.2, 1], gap="large")
+
     with detail_col:
         render_supplier_card(invoice)
+
     with finance_col:
         render_financial_card(invoice, currency)
+        render_pdf_action(invoice)
+
     render_validation_card(invoice)
     render_decision_panel(selected_id, status)
 

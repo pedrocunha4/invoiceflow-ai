@@ -2,6 +2,7 @@ import hashlib
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 
@@ -24,6 +25,12 @@ from api.services.invoice_validation_service import (
     validate_invoice_business_rules
 )
 from api.services.pdf_service import extract_text_from_pdf
+from api.services.storage_service import (
+    build_invoice_file_path,
+    upload_invoice_pdf,
+    create_invoice_signed_url,
+    download_invoice_pdf
+)
 
 
 app = FastAPI(
@@ -34,6 +41,7 @@ app = FastAPI(
 )
 
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
+SIGNED_URL_EXPIRATION = 300  # 5 minutes
 
 
 # ---------------------------------------------------------
@@ -53,6 +61,7 @@ app.mount(
 
 @app.get("/docs", include_in_schema=False)
 def custom_swagger_ui():
+
     return get_swagger_ui_html(
         openapi_url=app.openapi_url,
         title="InvoiceFlow AI API",
@@ -66,6 +75,7 @@ def custom_swagger_ui():
 
 @app.get("/")
 def root():
+
     return {
         "message": "InvoiceFlow AI API is running",
         "status": "ok"
@@ -74,6 +84,7 @@ def root():
 
 @app.get("/health")
 def health_check():
+
     return {
         "status": "healthy"
     }
@@ -118,6 +129,103 @@ def get_invoice(invoice_id: int):
         )
 
     return invoice
+
+
+# ---------------------------------------------------------
+# Original invoice PDF
+# ---------------------------------------------------------
+
+@app.get("/invoices/{invoice_id}/pdf-url")
+def get_invoice_pdf_url(invoice_id: int):
+
+    invoice = get_invoice_by_id(invoice_id)
+
+    if not invoice:
+        raise HTTPException(
+            status_code=404,
+            detail="Invoice not found."
+        )
+
+    file_path = invoice.get("file_path")
+
+    if not file_path:
+        raise HTTPException(
+            status_code=404,
+            detail="Original invoice PDF is not available."
+        )
+
+    signed_url = create_invoice_signed_url(
+        file_path=file_path,
+        expires_in=SIGNED_URL_EXPIRATION
+    )
+
+    if not signed_url:
+        raise HTTPException(
+            status_code=502,
+            detail="Could not generate a temporary PDF URL."
+        )
+
+    return {
+        "invoice_id": invoice_id,
+        "url": signed_url,
+        "expires_in": SIGNED_URL_EXPIRATION
+    }
+
+
+@app.get("/invoices/{invoice_id}/pdf")
+def view_invoice_pdf(invoice_id: int):
+
+    invoice = get_invoice_by_id(invoice_id)
+
+    if not invoice:
+        raise HTTPException(
+            status_code=404,
+            detail="Invoice not found."
+        )
+
+    file_path = invoice.get("file_path")
+
+    if not file_path:
+        raise HTTPException(
+            status_code=404,
+            detail="Original invoice PDF is not available."
+        )
+
+    # Download PDF directly from private Supabase Storage
+    pdf_content = download_invoice_pdf(file_path)
+
+    if not pdf_content:
+        raise HTTPException(
+            status_code=502,
+            detail="Could not retrieve the original invoice PDF."
+        )
+
+    # Use original filename when available
+    file_name = (
+        invoice.get("file_name")
+        or f"invoice_{invoice_id}.pdf"
+    )
+
+    # Prevent invalid characters in HTTP headers
+    safe_file_name = (
+        file_name
+        .replace('"', "")
+        .replace("\r", "")
+        .replace("\n", "")
+    )
+
+    # Serve PDF directly in the browser
+    return Response(
+        content=pdf_content,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": (
+                f'inline; filename="{safe_file_name}"'
+            ),
+            "Cache-Control": "private, no-store",
+            "X-Content-Type-Options": "nosniff"
+        }
+    )
 
 
 # ---------------------------------------------------------
@@ -245,6 +353,8 @@ async def extract_invoice(file: UploadFile = File(...)):
             detail="File is too large. Maximum size is 10 MB."
         )
 
+    file_name = file.filename or "invoice.pdf"
+
     # Generate SHA-256 fingerprint
     file_hash = hashlib.sha256(content).hexdigest()
 
@@ -252,7 +362,7 @@ async def extract_invoice(file: UploadFile = File(...)):
     create_audit_log(
         event_type="invoice_received",
         source="api",
-        file_name=file.filename,
+        file_name=file_name,
         file_hash=file_hash,
         details={
             "content_type": file.content_type,
@@ -269,7 +379,7 @@ async def extract_invoice(file: UploadFile = File(...)):
             event_type="duplicate_detected",
             invoice_id=existing_invoice["id"],
             source="api",
-            file_name=file.filename,
+            file_name=file_name,
             file_hash=file_hash,
             details={
                 "reason": "file_hash",
@@ -322,7 +432,7 @@ async def extract_invoice(file: UploadFile = File(...)):
     create_audit_log(
         event_type="ai_extracted",
         source="ai",
-        file_name=file.filename,
+        file_name=file_name,
         file_hash=file_hash,
         details={
             "supplier_name": invoice.supplier_name,
@@ -348,7 +458,7 @@ async def extract_invoice(file: UploadFile = File(...)):
             event_type="duplicate_detected",
             invoice_id=existing_invoice["id"],
             source="api",
-            file_name=file.filename,
+            file_name=file_name,
             file_hash=file_hash,
             details={
                 "reason": "invoice_number",
@@ -381,7 +491,7 @@ async def extract_invoice(file: UploadFile = File(...)):
     create_audit_log(
         event_type="validation_completed",
         source="validation",
-        file_name=file.filename,
+        file_name=file_name,
         file_hash=file_hash,
         details={
             "is_valid": validation_result["is_valid"],
@@ -390,12 +500,62 @@ async def extract_invoice(file: UploadFile = File(...)):
         }
     )
 
-    # Save invoice in Supabase
+    # Build private Supabase Storage path
+    file_path = build_invoice_file_path(
+        supplier_vat_number=invoice.supplier_vat_number,
+        invoice_number=invoice.invoice_number,
+        original_filename=file_name
+    )
+
+    # Upload original PDF to private Supabase Storage
+    stored_file_path = upload_invoice_pdf(
+        file_path=file_path,
+        content=content
+    )
+
+    if not stored_file_path:
+
+        create_audit_log(
+            event_type="document_storage_failed",
+            source="storage",
+            file_name=file_name,
+            file_hash=file_hash,
+            details={
+                "bucket": "invoice-documents",
+                "file_path": file_path
+            }
+        )
+
+        raise HTTPException(
+            status_code=502,
+            detail=(
+                "The invoice was extracted successfully, but the "
+                "original PDF could not be stored."
+            )
+        )
+
+    # Save invoice in Supabase database
     saved_invoice = save_invoice(
-        file_name=file.filename,
+        file_name=file_name,
         file_hash=file_hash,
         invoice=invoice,
-        validation=validation_result
+        validation=validation_result,
+        file_path=stored_file_path
+    )
+
+    # Register successful PDF storage
+    create_audit_log(
+        event_type="document_stored",
+        invoice_id=saved_invoice["id"],
+        source="storage",
+        file_name=file_name,
+        file_hash=file_hash,
+        details={
+            "bucket": "invoice-documents",
+            "file_path": stored_file_path,
+            "content_type": "application/pdf",
+            "size_bytes": len(content)
+        }
     )
 
     # Register invoice creation
@@ -403,7 +563,7 @@ async def extract_invoice(file: UploadFile = File(...)):
         event_type="invoice_created",
         invoice_id=saved_invoice["id"],
         source="api",
-        file_name=file.filename,
+        file_name=file_name,
         file_hash=file_hash,
         details={
             "status": saved_invoice["status"],
@@ -411,7 +571,8 @@ async def extract_invoice(file: UploadFile = File(...)):
             "supplier_vat_number": saved_invoice["supplier_vat_number"],
             "invoice_number": saved_invoice["invoice_number"],
             "total": saved_invoice["total"],
-            "currency": saved_invoice["currency"]
+            "currency": saved_invoice["currency"],
+            "file_path": saved_invoice.get("file_path")
         }
     )
 
@@ -430,7 +591,7 @@ async def extract_invoice(file: UploadFile = File(...)):
         ),
         invoice_id=saved_invoice["id"],
         source="automation",
-        file_name=file.filename,
+        file_name=file_name,
         file_hash=file_hash,
         details={
             "provider": "make",
@@ -445,10 +606,11 @@ async def extract_invoice(file: UploadFile = File(...)):
     return {
         "status": "processed",
         "database_id": saved_invoice["id"],
-        "filename": file.filename,
+        "filename": file_name,
         "sha256": file_hash,
         "invoice": invoice.model_dump(mode="json"),
         "validation": validation_result,
+        "file_path": stored_file_path,
         "automation_dispatched": make_result["dispatched"]
     }
 
@@ -482,6 +644,8 @@ async def upload_invoice(file: UploadFile = File(...)):
             detail="File is too large. Maximum size is 10 MB."
         )
 
+    file_name = file.filename or "invoice.pdf"
+
     # Generate SHA-256 hash
     file_hash = hashlib.sha256(content).hexdigest()
 
@@ -490,7 +654,7 @@ async def upload_invoice(file: UploadFile = File(...)):
 
     return {
         "status": "received",
-        "filename": file.filename,
+        "filename": file_name,
         "content_type": file.content_type,
         "size_bytes": len(content),
         "sha256": file_hash,
