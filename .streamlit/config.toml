@@ -12,3 +12,6 @@ dataframeHeaderBackgroundColor = "#111B2E"
 greenColor = "#22C55E"
 orangeColor = "#F59E0B"
 redColor = "#EF4444"
+
+[server]
+maxUploadSize = 10

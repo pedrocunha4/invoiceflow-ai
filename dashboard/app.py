@@ -20,20 +20,257 @@ API_BASE_URL = os.getenv(
 
 FAVICON_PATH = Path(__file__).parent / "icon" / "favicon.png"
 
+# Internal page identifiers (used for routing). Display names live in
+# TRANSLATIONS under the "nav.<page>" keys.
 NAV_PAGES = ["Dashboard", "Process Invoice", "Invoice Review"]
 
+# Internal status keys come from the API and must never be translated.
+# Only their display labels (TRANSLATIONS "status.<key>") change per language.
 STATUS_META: Dict[str, Dict[str, str]] = {
-    "approved": {"label": "Approved", "color": "green", "dot": "🟢"},
-    "needs_review": {"label": "Needs Review", "color": "orange", "dot": "🟡"},
-    "rejected": {"label": "Rejected", "color": "red", "dot": "🔴"},
+    "approved": {"color": "green", "dot": "🟢"},
+    "needs_review": {"color": "orange", "dot": "🟡"},
+    "rejected": {"color": "red", "dot": "🔴"},
 }
-STATUS_LABEL_TO_KEY = {meta["label"]: key for key, meta in STATUS_META.items()}
 
 CURRENCY_SYMBOLS = {"EUR": "€", "USD": "$", "GBP": "£"}
+
+SUPPLIER_CHART_LIMIT = 10
 
 # Keys the API may use to return validation findings for an invoice.
 # Adjust to match your backend response if it uses a different field name.
 VALIDATION_KEYS = ("validation_errors", "validation_error", "validation_issues")
+
+# ---------------------------------------------------------------------------
+# Internationalisation (EN / PT)
+# ---------------------------------------------------------------------------
+
+LANGUAGES = ("EN", "PT")
+DEFAULT_LANG = "EN"
+
+TRANSLATIONS: Dict[str, Dict[str, str]] = {
+    "EN": {
+        # Navigation / sidebar / header
+        "nav.Dashboard": "Dashboard",
+        "nav.Process Invoice": "Process Invoice",
+        "nav.Invoice Review": "Invoice Review",
+        "sidebar.tagline": "Intelligent invoice processing",
+        "sidebar.api_online": "API Online",
+        "sidebar.api_offline": "API Offline",
+        "header.title": "Invoice Operations",
+        "header.subtitle": "Review, validate and approve supplier invoices extracted by AI.",
+        # API / errors
+        "api.invalid_json": "The API returned an invalid JSON response.",
+        "api.unexpected_format": "Unexpected response format.",
+        "api.connect_error": "Could not connect to the API: {error}",
+        "api.status_failed": "Status update failed (HTTP {code}).",
+        "api.unreachable": "The API is not reachable at {url}. Start the FastAPI server and reload the page.",
+        "error.stats": "Unable to load dashboard statistics: {error}",
+        "error.invoices": "Unable to load invoices: {error}",
+        "error.invoice": "Unable to load invoice: {error}",
+        # Statuses
+        "status.approved": "Approved",
+        "status.needs_review": "Needs Review",
+        "status.rejected": "Rejected",
+        "status.unknown": "Unknown",
+        # Dashboard
+        "dashboard.overview": "Overview",
+        "dashboard.overview_caption": "Processing volume and review status at a glance.",
+        "kpi.total": "Total Invoices",
+        "kpi.approved": "Approved",
+        "kpi.needs_review": "Needs Review",
+        "kpi.rejected": "Rejected",
+        "kpi.value": "Total Processed Value",
+        # Chart
+        "chart.title": "Processed Value by Supplier",
+        "chart.caption": "Top {n} suppliers by total processed invoice value.",
+        "chart.empty": "No invoice values available to chart yet.",
+        "chart.x": "Supplier",
+        "chart.y": "Processed value (€)",
+        "chart.unknown_supplier": "Unknown supplier",
+        # Registry
+        "registry.title": "Invoice Registry",
+        "registry.caption": "All processed invoices and their current review status.",
+        "registry.empty": "No invoices have been processed yet. Open Process Invoice to upload your first PDF.",
+        "registry.search": "Search by supplier or invoice number",
+        "registry.all_statuses": "All statuses",
+        "registry.showing": "Showing {shown} of {total} invoices",
+        "registry.no_match": "No invoices match your filters.",
+        "col.id": "ID",
+        "col.supplier": "Supplier",
+        "col.vat": "VAT Number",
+        "col.number": "Invoice Number",
+        "col.date": "Date",
+        "col.amount": "Amount",
+        "col.currency": "Currency",
+        "col.status": "Status",
+        # Process invoice
+        "process.title": "Process Invoice",
+        "process.caption": "Upload a PDF and let the AI extract, validate and register it.",
+        "process.uploader": "Invoice PDF",
+        "process.button": "Process with AI",
+        "process.spinner": "Extracting and validating invoice...",
+        "process.success": "Invoice processed successfully and added to the registry.",
+        "process.duplicate_default": "Duplicate invoice detected.",
+        "process.duplicate_file": "This PDF has already been processed.",
+        "process.duplicate_number": (
+            "An invoice with this supplier and invoice number already exists."
+        ),
+        "process.no_readable_text": "No readable text was found in the PDF.",
+        "process.invalid_invoice": (
+            "The uploaded PDF does not contain a valid invoice "
+            "or the required invoice fields could not be extracted."
+        ),
+        "process.failed": "The invoice could not be processed. HTTP {code}.",
+        "process.details": "Technical details",
+        "process.empty_body": "The response body was empty.",
+        # Review
+        "review.title": "Invoice Review",
+        "review.caption": "Verify the AI-extracted data and record your decision.",
+        "review.empty": "There are no invoices to review yet. Process an invoice first.",
+        "review.select": "Select an invoice",
+        "review.no_number": "no number",
+        "review.current_status": "Current status",
+        "review.invoice_no": "Invoice #{id}",
+        "card.supplier": "Supplier details",
+        "card.financial": "Financial summary",
+        "field.supplier": "Supplier",
+        "field.invoice_number": "Invoice Number",
+        "field.vat_number": "VAT Number",
+        "field.invoice_date": "Invoice Date",
+        "field.subtotal": "Subtotal",
+        "field.vat": "VAT",
+        "field.total": "Total",
+        "validation.title": "Validation",
+        "validation.flagged": "The validation checks flagged the following:",
+        "validation.ok": "No validation issues reported.",
+        "decision.title": "Review decision",
+        "decision.caption": "Your decision is saved immediately and reflected in the registry.",
+        "decision.approve": "Approve",
+        "decision.needs_review": "Needs Review",
+        "decision.reject": "Reject",
+        "decision.approved_msg": "Invoice approved.",
+        "decision.review_msg": "Invoice marked for review.",
+        "decision.rejected_msg": "Invoice rejected.",
+    },
+    "PT": {
+        # Navigation / sidebar / header
+        "nav.Dashboard": "Painel",
+        "nav.Process Invoice": "Processar fatura",
+        "nav.Invoice Review": "Revisão de faturas",
+        "sidebar.tagline": "Processamento inteligente de faturas",
+        "sidebar.api_online": "API Online",
+        "sidebar.api_offline": "API Offline",
+        "header.title": "Operações de Faturas",
+        "header.subtitle": "Reveja, valide e aprove faturas de fornecedores extraídas por IA.",
+        # API / errors
+        "api.invalid_json": "A API devolveu uma resposta JSON inválida.",
+        "api.unexpected_format": "Formato de resposta inesperado.",
+        "api.connect_error": "Não foi possível ligar à API: {error}",
+        "api.status_failed": "Falha ao atualizar o estado (HTTP {code}).",
+        "api.unreachable": "A API não está acessível em {url}. Inicie o servidor FastAPI e recarregue a página.",
+        "error.stats": "Não foi possível carregar as estatísticas do painel: {error}",
+        "error.invoices": "Não foi possível carregar as faturas: {error}",
+        "error.invoice": "Não foi possível carregar a fatura: {error}",
+        # Statuses
+        "status.approved": "Aprovada",
+        "status.needs_review": "Requer revisão",
+        "status.rejected": "Rejeitada",
+        "status.unknown": "Desconhecido",
+        # Dashboard
+        "dashboard.overview": "Visão geral",
+        "dashboard.overview_caption": "Volume de processamento e estado das revisões num relance.",
+        "kpi.total": "Total de faturas",
+        "kpi.approved": "Aprovadas",
+        "kpi.needs_review": "Requerem revisão",
+        "kpi.rejected": "Rejeitadas",
+        "kpi.value": "Valor total processado",
+        # Chart
+        "chart.title": "Valor processado por fornecedor",
+        "chart.caption": "Top {n} fornecedores por valor total de faturas processadas.",
+        "chart.empty": "Ainda não há valores de faturas para apresentar no gráfico.",
+        "chart.x": "Fornecedor",
+        "chart.y": "Valor processado (€)",
+        "chart.unknown_supplier": "Fornecedor desconhecido",
+        # Registry
+        "registry.title": "Registo de faturas",
+        "registry.caption": "Todas as faturas processadas e o respetivo estado de revisão.",
+        "registry.empty": "Ainda não foram processadas faturas. Abra Processar fatura para carregar o primeiro PDF.",
+        "registry.search": "Pesquisar por fornecedor ou número da fatura",
+        "registry.all_statuses": "Todos os estados",
+        "registry.showing": "A mostrar {shown} de {total} faturas",
+        "registry.no_match": "Nenhuma fatura corresponde aos filtros.",
+        "col.id": "ID",
+        "col.supplier": "Fornecedor",
+        "col.vat": "NIF",
+        "col.number": "Nº da fatura",
+        "col.date": "Data",
+        "col.amount": "Valor",
+        "col.currency": "Moeda",
+        "col.status": "Estado",
+        # Process invoice
+        "process.title": "Processar fatura",
+        "process.caption": "Carregue um PDF e deixe a IA extrair, validar e registar a fatura.",
+        "process.uploader": "PDF da fatura",
+        "process.button": "Processar com IA",
+        "process.spinner": "A extrair e a validar a fatura...",
+        "process.success": "Fatura processada com sucesso e adicionada ao registo.",
+        "process.duplicate_default": "Fatura duplicada detetada.",
+        "process.duplicate_file": "Este PDF já foi processado.",
+        "process.duplicate_number": (
+            "Já existe uma fatura deste fornecedor com o mesmo número."
+        ),
+        "process.no_readable_text": "Não foi encontrado texto legível no PDF.",
+        "process.invalid_invoice": (
+            "O PDF carregado não contém uma fatura válida "
+            "ou não foi possível extrair os campos obrigatórios."
+        ),
+        "process.failed": "Não foi possível processar a fatura. HTTP {code}.",
+        "process.details": "Detalhes técnicos",
+        "process.empty_body": "O corpo da resposta estava vazio.",
+        # Review
+        "review.title": "Revisão de faturas",
+        "review.caption": "Verifique os dados extraídos pela IA e registe a sua decisão.",
+        "review.empty": "Ainda não há faturas para rever. Processe primeiro uma fatura.",
+        "review.select": "Selecione uma fatura",
+        "review.no_number": "sem número",
+        "review.current_status": "Estado atual",
+        "review.invoice_no": "Fatura n.º {id}",
+        "card.supplier": "Dados do fornecedor",
+        "card.financial": "Resumo financeiro",
+        "field.supplier": "Fornecedor",
+        "field.invoice_number": "Nº da fatura",
+        "field.vat_number": "NIF",
+        "field.invoice_date": "Data da fatura",
+        "field.subtotal": "Subtotal",
+        "field.vat": "IVA",
+        "field.total": "Total",
+        "validation.title": "Validação",
+        "validation.flagged": "As verificações de validação assinalaram o seguinte:",
+        "validation.ok": "Sem problemas de validação reportados.",
+        "decision.title": "Decisão de revisão",
+        "decision.caption": "A sua decisão é guardada de imediato e refletida no registo.",
+        "decision.approve": "Aprovar",
+        "decision.needs_review": "Requer revisão",
+        "decision.reject": "Rejeitar",
+        "decision.approved_msg": "Fatura aprovada.",
+        "decision.review_msg": "Fatura marcada para revisão.",
+        "decision.rejected_msg": "Fatura rejeitada.",
+    },
+}
+
+
+def current_lang() -> str:
+    lang = st.session_state.get("lang", DEFAULT_LANG)
+    return lang if lang in TRANSLATIONS else DEFAULT_LANG
+
+
+def t(key: str, **kwargs: Any) -> str:
+    """Translate `key` into the active language (falls back to English)."""
+    text = TRANSLATIONS[current_lang()].get(key)
+    if text is None:
+        text = TRANSLATIONS[DEFAULT_LANG].get(key, key)
+    return text.format(**kwargs) if kwargs else text
+
 
 # ---------------------------------------------------------------------------
 # Styling
@@ -56,6 +293,9 @@ h4 { font-size: 1.05rem !important; font-weight: 600 !important; }
 [data-testid="stCaptionContainer"] { margin-bottom: 0.5rem; }
 hr { margin: 1rem 0 !important; }
 
+/* Language switch (top-right of the header) */
+.st-key-lang { margin-top: 1.1rem; }
+
 /* Sidebar */
 [data-testid="stSidebar"] { background-color: #0A1222; border-right: 1px solid #1B2740; }
 [data-testid="stSidebar"] [data-testid="stRadioGroup"] { gap: 0.3rem; align-items: stretch !important; }
@@ -72,8 +312,9 @@ hr { margin: 1rem 0 !important; }
 [data-testid="stMetricValue"] { color: #F8FAFC; font-size: 1.7rem; font-weight: 600; }
 
 /* File uploader (layout / dimensions) */
-[data-testid="stFileUploaderDropzone"] { background-color: #0D1626; border: 1.5px dashed #2B3C5E; padding: 2.8rem 1.5rem; min-height: 150px; }
+[data-testid="stFileUploaderDropzone"] { display: flex; align-items: center; justify-content: center; gap: 1.2rem; background-color: #0D1626; border: 1.5px dashed #2B3C5E; padding: 2.8rem 1.5rem; min-height: 150px; }
 [data-testid="stFileUploaderDropzone"]:hover { border-color: #3B82F6; }
+[data-testid="stFileUploaderDropzoneInstructions"] { flex: 0 1 auto; }
 
 /* Buttons: full width + size */
 .stElementContainer:has(.stButton), .element-container:has(.stButton), [data-testid="stElementContainer"]:has([data-testid="stButton"]) { width: 100% !important; }
@@ -125,12 +366,14 @@ def md_escape(text: Any) -> str:
 
 
 def status_meta(status: Any) -> Dict[str, str]:
-    default = {
-        "label": str(status or "Unknown").replace("_", " ").title(),
+    meta = STATUS_META.get(status)
+    if meta:
+        return {**meta, "label": t(f"status.{status}")}
+    return {
+        "label": str(status or t("status.unknown")).replace("_", " ").title(),
         "color": "gray",
         "dot": "⚪",
     }
-    return STATUS_META.get(status, default)
 
 
 def safe_json(response: requests.Response) -> Any:
@@ -138,22 +381,6 @@ def safe_json(response: requests.Response) -> Any:
         return response.json()
     except ValueError:
         return None
-
-
-def extract_detail_message(
-    response: requests.Response,
-    default: str
-) -> str:
-    body = safe_json(response)
-    detail = body.get("detail") if isinstance(body, dict) else None
-
-    if isinstance(detail, dict):
-        return detail.get("message", default)
-
-    if isinstance(detail, str):
-        return detail
-
-    return default
 
 
 def set_flash(level: str, message: str) -> None:
@@ -195,7 +422,7 @@ def api_get(path: str, timeout: int = 10) -> Tuple[Optional[Any], Optional[str]]
     except requests.RequestException as exc:
         return None, str(exc)
     except ValueError:
-        return None, "The API returned an invalid JSON response."
+        return None, t("api.invalid_json")
 
 
 def check_api_health() -> bool:
@@ -226,7 +453,7 @@ def fetch_invoice(invoice_id: Any) -> Tuple[Optional[Dict[str, Any]], Optional[s
     if error:
         return None, error
     if not isinstance(data, dict):
-        return None, "Unexpected response format."
+        return None, t("api.unexpected_format")
     return data, None
 
 
@@ -257,23 +484,35 @@ def process_invoice(uploaded_file: Any) -> Tuple[str, Any]:
 
     # Duplicate invoice
     if response.status_code == 409:
-        return (
-            "duplicate",
-            extract_detail_message(
-                response,
-                "Duplicate invoice detected."
-            )
+        body = safe_json(response)
+        detail = body.get("detail") if isinstance(body, dict) else None
+
+        reason = (
+            detail.get("reason")
+            if isinstance(detail, dict)
+            else None
         )
+
+        if reason == "file_hash":
+            message = t("process.duplicate_file")
+        elif reason == "invoice_number":
+            message = t("process.duplicate_number")
+        else:
+            message = t("process.duplicate_default")
+
+        return "duplicate", message
 
     # PDF exists but is not a valid invoice
     if response.status_code == 422:
-        return (
-            "invalid_invoice",
-            extract_detail_message(
-                response,
-                "The uploaded PDF could not be recognized as a valid invoice."
-            )
-        )
+        body = safe_json(response)
+        detail = body.get("detail") if isinstance(body, dict) else None
+
+        if detail == "No readable text was found in the PDF.":
+            message = t("process.no_readable_text")
+        else:
+            message = t("process.invalid_invoice")
+
+        return "invalid_invoice", message
 
     # Other errors
     body = safe_json(response)
@@ -292,36 +531,60 @@ def update_invoice_status(invoice_id: Any, new_status: str) -> Tuple[bool, str]:
             timeout=10,
         )
     except requests.RequestException as exc:
-        return False, f"Could not connect to the API: {exc}"
+        return False, t("api.connect_error", error=exc)
     if response.status_code == 200:
         return True, ""
-    return False, f"Status update failed (HTTP {response.status_code})."
+    return False, t("api.status_failed", code=response.status_code)
 
 
 # ---------------------------------------------------------------------------
-# Layout: sidebar + header
+# Layout: header (with language switch) + sidebar
 # ---------------------------------------------------------------------------
+
+
+def render_language_switch() -> None:
+    """EN / PT switch. The value lives in st.session_state["lang"] and is
+    mirrored in the URL (?lang=PT), so it survives a page refresh."""
+    st.segmented_control(
+        "Language",
+        list(LANGUAGES),
+        default=DEFAULT_LANG,
+        required=True,
+        key="lang",
+        bind="query-params",
+        label_visibility="collapsed",
+        width="stretch",
+    )
+
+
+def render_header() -> None:
+    title_col, lang_col = st.columns([8, 1.3])
+    # The switch is created first so every t() call below already sees the
+    # language chosen in this run.
+    with lang_col:
+        render_language_switch()
+    with title_col:
+        st.title(t("header.title"))
+        st.caption(t("header.subtitle"))
 
 
 def render_sidebar(api_online: bool) -> str:
     with st.sidebar:
         st.markdown("### :blue[◆] InvoiceFlow AI")
-        st.caption("Intelligent invoice processing")
+        st.caption(t("sidebar.tagline"))
         page = st.radio(
-            "Navigation", NAV_PAGES, key="page", label_visibility="collapsed"
+            "Navigation",
+            NAV_PAGES,
+            key="page",
+            label_visibility="collapsed",
+            format_func=lambda page_id: t(f"nav.{page_id}"),
         )
         st.divider()
         if api_online:
-            st.markdown(":green[●] **API Online**")
+            st.markdown(f':green[●] **{t("sidebar.api_online")}**')
         else:
-            st.markdown(":red[●] **API Offline**")
+            st.markdown(f':red[●] **{t("sidebar.api_offline")}**')
         return page
-
-def render_header() -> None:
-    st.title("Invoice Operations")
-    st.caption(
-        "Review, validate and approve supplier invoices extracted by AI."
-    )
 
 
 # ---------------------------------------------------------------------------
@@ -332,12 +595,13 @@ def render_header() -> None:
 def render_metrics(stats: Dict[str, Any]) -> None:
     columns = st.columns(5, gap="medium")
     total_value = to_float(stats.get("total_amount")) or 0.0
+    dot = {key: meta["dot"] for key, meta in STATUS_META.items()}
     cards = [
-        ("Total Invoices", f'{int(to_float(stats.get("total_invoices")) or 0)}'),
-        ("🟢 Approved", f'{int(to_float(stats.get("approved")) or 0)}'),
-        ("🟡 Needs Review", f'{int(to_float(stats.get("needs_review")) or 0)}'),
-        ("🔴 Rejected", f'{int(to_float(stats.get("rejected")) or 0)}'),
-        ("Total Processed Value", f"{total_value:,.2f} €"),
+        (t("kpi.total"), f'{int(to_float(stats.get("total_invoices")) or 0)}'),
+        (f'{dot["approved"]} {t("kpi.approved")}', f'{int(to_float(stats.get("approved")) or 0)}'),
+        (f'{dot["needs_review"]} {t("kpi.needs_review")}', f'{int(to_float(stats.get("needs_review")) or 0)}'),
+        (f'{dot["rejected"]} {t("kpi.rejected")}', f'{int(to_float(stats.get("rejected")) or 0)}'),
+        (t("kpi.value"), f"{total_value:,.2f} €"),
     ]
     for column, (label, value) in zip(columns, cards):
         column.metric(label, value)
@@ -351,7 +615,9 @@ def chart_label(name: str) -> str:
     return SUPPLIER_SUFFIX_RE.sub("", name).strip() or name
 
 
-def supplier_totals(invoices: List[Dict[str, Any]], limit: int = 10) -> pd.DataFrame:
+def supplier_totals(
+    invoices: List[Dict[str, Any]], limit: int = SUPPLIER_CHART_LIMIT
+) -> pd.DataFrame:
     """Sum invoice totals per supplier and keep the top `limit` suppliers.
 
     Ignores missing/invalid totals. Returns a DataFrame with columns
@@ -364,7 +630,10 @@ def supplier_totals(invoices: List[Dict[str, Any]], limit: int = 10) -> pd.DataF
         amount = to_float(invoice.get("total"))
         if amount is None or amount != amount:  # None or NaN
             continue
-        supplier = str(invoice.get("supplier_name") or "").strip() or "Unknown supplier"
+        supplier = (
+            str(invoice.get("supplier_name") or "").strip()
+            or t("chart.unknown_supplier")
+        )
         totals[supplier] = totals.get(supplier, 0.0) + amount
 
     frame = pd.DataFrame(
@@ -390,13 +659,13 @@ def supplier_totals(invoices: List[Dict[str, Any]], limit: int = 10) -> pd.DataF
 
 def render_supplier_chart(invoices: List[Dict[str, Any]]) -> None:
     section_header(
-        "Processed Value by Supplier",
-        "Top 10 suppliers by total processed invoice value.",
+        t("chart.title"),
+        t("chart.caption", n=SUPPLIER_CHART_LIMIT),
     )
 
     data = supplier_totals(invoices)
     if data.empty:
-        st.info("No invoice values available to chart yet.")
+        st.info(t("chart.empty"))
         return
 
     with st.container(border=True):
@@ -404,8 +673,8 @@ def render_supplier_chart(invoices: List[Dict[str, Any]]) -> None:
             data,
             x="Supplier",
             y="Total",
-            x_label="Supplier",
-            y_label="Processed value (€)",
+            x_label=t("chart.x"),
+            y_label=t("chart.y"),
             horizontal=True,
             sort="-Total",
             height=min(420, max(200, 48 * len(data) + 60)),
@@ -413,13 +682,13 @@ def render_supplier_chart(invoices: List[Dict[str, Any]]) -> None:
 
 
 def filter_invoices(
-    invoices: List[Dict[str, Any]], query: str, status_label: str
+    invoices: List[Dict[str, Any]], query: str, status_key: str
 ) -> List[Dict[str, Any]]:
+    """`status_key` is "all" or one of the internal status keys."""
     query = query.strip().lower()
-    status_key = STATUS_LABEL_TO_KEY.get(status_label)
     result = []
     for invoice in invoices:
-        if status_key and invoice.get("status") != status_key:
+        if status_key != "all" and invoice.get("status") != status_key:
             continue
         haystack = (
             f'{invoice.get("supplier_name", "")} {invoice.get("invoice_number", "")}'
@@ -431,51 +700,58 @@ def filter_invoices(
 
 
 def render_invoice_table(invoices: List[Dict[str, Any]]) -> None:
-    section_header(
-        "Invoice Registry",
-        "All processed invoices and their current review status.",
-    )
+    section_header(t("registry.title"), t("registry.caption"))
     if not invoices:
-        st.info(
-            "No invoices have been processed yet. "
-            "Open Process Invoice to upload your first PDF."
-        )
+        st.info(t("registry.empty"))
         return
 
     with st.container(border=True):
         search_col, status_col = st.columns([3, 1.3])
         query = search_col.text_input(
             "Search",
-            placeholder="Search by supplier or invoice number",
+            placeholder=t("registry.search"),
             label_visibility="collapsed",
             key="registry_search",
         )
-        status_label = status_col.selectbox(
+        status_key = status_col.selectbox(
             "Status filter",
-            ["All statuses"] + list(STATUS_LABEL_TO_KEY),
+            ["all"] + list(STATUS_META),
+            format_func=lambda key: (
+                t("registry.all_statuses") if key == "all" else t(f"status.{key}")
+            ),
             label_visibility="collapsed",
             key="registry_status",
         )
-        filtered = filter_invoices(invoices, query, status_label)
-        st.caption(f"Showing {len(filtered)} of {len(invoices)} invoices")
+        filtered = filter_invoices(invoices, query, status_key)
+        st.caption(
+            t("registry.showing", shown=len(filtered), total=len(invoices))
+        )
 
         if not filtered:
-            st.info("No invoices match your filters.")
+            st.info(t("registry.no_match"))
             return
+
+        col = {
+            name: t(f"col.{name}")
+            for name in (
+                "id", "supplier", "vat", "number",
+                "date", "amount", "currency", "status",
+            )
+        }
 
         rows = []
         for invoice in filtered:
             meta = status_meta(invoice.get("status"))
             rows.append(
                 {
-                    "ID": invoice.get("id"),
-                    "Supplier": invoice.get("supplier_name"),
-                    "VAT Number": invoice.get("supplier_vat_number"),
-                    "Invoice Number": invoice.get("invoice_number"),
-                    "Date": invoice.get("invoice_date"),
-                    "Amount": to_float(invoice.get("total")),
-                    "Currency": invoice.get("currency"),
-                    "Status": f'{meta["dot"]} {meta["label"]}',
+                    col["id"]: invoice.get("id"),
+                    col["supplier"]: invoice.get("supplier_name"),
+                    col["vat"]: invoice.get("supplier_vat_number"),
+                    col["number"]: invoice.get("invoice_number"),
+                    col["date"]: invoice.get("invoice_date"),
+                    col["amount"]: to_float(invoice.get("total")),
+                    col["currency"]: invoice.get("currency"),
+                    col["status"]: f'{meta["dot"]} {meta["label"]}',
                 }
             )
 
@@ -483,23 +759,27 @@ def render_invoice_table(invoices: List[Dict[str, Any]]) -> None:
             rows,
             hide_index=True,
             column_config={
-                "ID": st.column_config.NumberColumn("ID", format="%d", width="small"),
-                "Amount": st.column_config.NumberColumn("Amount", format="%.2f"),
+                col["id"]: st.column_config.NumberColumn(
+                    col["id"], format="%d", width="small"
+                ),
+                col["amount"]: st.column_config.NumberColumn(
+                    col["amount"], format="%.2f"
+                ),
             },
         )
 
 
 def render_dashboard() -> None:
-    section_header("Overview", "Processing volume and review status at a glance.")
+    section_header(t("dashboard.overview"), t("dashboard.overview_caption"))
     stats, error = fetch_stats()
     if error:
-        st.error(f"Unable to load dashboard statistics: {error}")
+        st.error(t("error.stats", error=error))
     else:
         render_metrics(stats or {})
 
     invoices, error = fetch_invoices()
     if error:
-        st.error(f"Unable to load invoices: {error}")
+        st.error(t("error.invoices", error=error))
     else:
         render_supplier_chart(invoices)
         render_invoice_table(invoices)
@@ -519,10 +799,7 @@ def render_processing_result(
 
         set_flash(
             "success",
-            (
-                "Invoice processed successfully "
-                "and added to the registry."
-            )
+            t("process.success")
         )
 
         # Clear the uploaded PDF after success
@@ -546,7 +823,7 @@ def render_processing_result(
     elif outcome == "network":
 
         st.error(
-            f"Could not connect to the API: {payload}"
+            t("api.connect_error", error=payload)
         )
 
     else:
@@ -554,14 +831,11 @@ def render_processing_result(
         status_code, body = payload
 
         st.error(
-            (
-                "The invoice could not be processed. "
-                f"HTTP {status_code}."
-            )
+            t("process.failed", code=status_code)
         )
 
         with st.expander(
-            "Technical details"
+            t("process.details")
         ):
 
             if isinstance(
@@ -573,20 +847,20 @@ def render_processing_result(
             else:
                 st.text(
                     body
-                    or "The response body was empty."
+                    or t("process.empty_body")
                 )
 
 def render_upload_section() -> None:
 
     section_header(
-        "Process Invoice",
-        "Upload a PDF and let the AI extract, validate and register it.",
+        t("process.title"),
+        t("process.caption"),
     )
 
     with st.container(border=True):
 
         upload_version = st.session_state.get("upload_version", 0)
-        uploaded_file = st.file_uploader("Invoice PDF", type=["pdf"], key=f"invoice_upload_{upload_version}",)
+        uploaded_file = st.file_uploader(t("process.uploader"), type=["pdf"], key=f"invoice_upload_{upload_version}",)
 
         if uploaded_file is not None:
 
@@ -598,7 +872,7 @@ def render_upload_section() -> None:
         st.write("")
 
         clicked = st.button(
-            "Process with AI",
+            t("process.button"),
             type="primary",
             disabled=uploaded_file is None,
             key="btn_process",
@@ -608,7 +882,7 @@ def render_upload_section() -> None:
     if clicked and uploaded_file is not None:
 
         with st.spinner(
-            "Extracting and validating invoice..."
+            t("process.spinner")
         ):
 
             outcome, payload = process_invoice(
@@ -631,36 +905,36 @@ def render_review_header(invoice: Dict[str, Any], status: Any) -> None:
     with left:
         st.markdown(f"#### {md_escape(display(invoice.get('invoice_number')))}")
         st.caption(
-            f"Invoice #{invoice.get('id')} · "
+            f"{t('review.invoice_no', id=invoice.get('id'))} · "
             f"{md_escape(display(invoice.get('supplier_name')))}"
         )
     with right:
-        st.caption("Current status")
+        st.caption(t("review.current_status"))
         st.markdown(f"#### :{meta['color']}[● {meta['label']}]")
 
 
 def render_supplier_card(invoice: Dict[str, Any]) -> None:
     with st.container(border=True):
-        st.markdown("**Supplier details**")
+        st.markdown(f"**{t('card.supplier')}**")
         left, right = st.columns(2)
         with left:
-            field("Supplier", invoice.get("supplier_name"))
-            field("Invoice Number", invoice.get("invoice_number"))
+            field(t("field.supplier"), invoice.get("supplier_name"))
+            field(t("field.invoice_number"), invoice.get("invoice_number"))
         with right:
-            field("VAT Number", invoice.get("supplier_vat_number"))
-            field("Invoice Date", invoice.get("invoice_date"))
+            field(t("field.vat_number"), invoice.get("supplier_vat_number"))
+            field(t("field.invoice_date"), invoice.get("invoice_date"))
 
 
 def render_financial_card(invoice: Dict[str, Any], currency: Optional[str]) -> None:
     with st.container(border=True):
-        st.markdown("**Financial summary**")
+        st.markdown(f"**{t('card.financial')}**")
         first, second, third = st.columns(3)
         with first:
-            field("Subtotal", format_money(invoice.get("subtotal"), currency))
+            field(t("field.subtotal"), format_money(invoice.get("subtotal"), currency))
         with second:
-            field("VAT", format_money(invoice.get("vat_amount"), currency))
+            field(t("field.vat"), format_money(invoice.get("vat_amount"), currency))
         with third:
-            field("Total", format_money(invoice.get("total"), currency), highlight=True)
+            field(t("field.total"), format_money(invoice.get("total"), currency), highlight=True)
 
 
 def render_validation_card(invoice: Dict[str, Any]) -> None:
@@ -676,12 +950,12 @@ def render_validation_card(invoice: Dict[str, Any]) -> None:
         issues = [str(issues)] if issues else []
 
     with st.container(border=True):
-        st.markdown("**Validation**")
+        st.markdown(f"**{t('validation.title')}**")
         if issues:
             items = "\n".join(f"- {md_escape(item)}" for item in issues)
-            st.warning(f"The validation checks flagged the following:\n\n{items}")
+            st.warning(f"{t('validation.flagged')}\n\n{items}")
         else:
-            st.success("No validation issues reported.")
+            st.success(t("validation.ok"))
 
 
 def handle_review_decision(
@@ -716,35 +990,34 @@ def render_decision_panel(
 
     decisions = [
         (
-            "Approve",
+            t("decision.approve"),
             "approved",
             "btn_approve",
             "success",
-            "Invoice approved."
+            t("decision.approved_msg")
         ),
         (
-            "Needs Review",
+            t("decision.needs_review"),
             "needs_review",
             "btn_review",
             "warning",
-            "Invoice marked for review."
+            t("decision.review_msg")
         ),
         (
-            "Reject",
+            t("decision.reject"),
             "rejected",
             "btn_reject",
             "error",
-            "Invoice rejected."
+            t("decision.rejected_msg")
         ),
     ]
 
     with st.container(border=True):
 
-        st.markdown("**Review decision**")
+        st.markdown(f"**{t('decision.title')}**")
 
         st.caption(
-            "Your decision is saved immediately "
-            "and reflected in the registry."
+            t("decision.caption")
         )
 
         columns = st.columns(3)
@@ -776,23 +1049,23 @@ def render_decision_panel(
 
 def render_review_workspace(invoices: List[Dict[str, Any]]) -> None:
     section_header(
-        "Invoice Review",
-        "Verify the AI-extracted data and record your decision.",
+        t("review.title"),
+        t("review.caption"),
     )
     valid = [inv for inv in invoices if inv.get("id") is not None]
     if not valid:
-        st.info("There are no invoices to review yet. Process an invoice first.")
+        st.info(t("review.empty"))
         return
 
     labels = {
         inv["id"]: (
-            f'#{inv["id"]} · {inv.get("supplier_name") or "Unknown supplier"}'
-            f' · {inv.get("invoice_number") or "no number"}'
+            f'#{inv["id"]} · {inv.get("supplier_name") or t("chart.unknown_supplier")}'
+            f' · {inv.get("invoice_number") or t("review.no_number")}'
         )
         for inv in valid
     }
     selected_id = st.selectbox(
-        "Select an invoice",
+        t("review.select"),
         options=list(labels),
         format_func=lambda invoice_id: labels[invoice_id],
         key="review_invoice_id",
@@ -800,7 +1073,7 @@ def render_review_workspace(invoices: List[Dict[str, Any]]) -> None:
 
     invoice, error = fetch_invoice(selected_id)
     if error or invoice is None:
-        st.error(f"Unable to load invoice: {error}")
+        st.error(t("error.invoice", error=error))
         return
 
     summary = next((inv for inv in valid if inv["id"] == selected_id), {})
@@ -820,8 +1093,8 @@ def render_review_workspace(invoices: List[Dict[str, Any]]) -> None:
 def render_review_page() -> None:
     invoices, error = fetch_invoices()
     if error:
-        section_header("Invoice Review")
-        st.error(f"Unable to load invoices: {error}")
+        section_header(t("review.title"))
+        st.error(t("error.invoices", error=error))
         return
     render_review_workspace(invoices)
 
@@ -836,15 +1109,13 @@ def main() -> None:
     inject_css()
 
     api_online = check_api_health()
-    page = render_sidebar(api_online)
+    # Header first: it creates the language switch that every t() call needs.
     render_header()
+    page = render_sidebar(api_online)
     render_flash()
 
     if not api_online:
-        st.error(
-            f"The API is not reachable at {API_BASE_URL}. "
-            "Start the FastAPI server and reload the page."
-        )
+        st.error(t("api.unreachable", url=API_BASE_URL))
         return
 
     if page == "Dashboard":
