@@ -1,6 +1,10 @@
+import logging
 from typing import Any, Dict, Optional
 
-from api.services.database_service import supabase
+from api.services.supabase_client import get_supabase_client
+
+
+logger = logging.getLogger(__name__)
 
 
 def create_audit_log(
@@ -14,8 +18,8 @@ def create_audit_log(
     """
     Create an audit log entry in Supabase.
 
-    Audit logging should not interrupt the main invoice workflow
-    if the log cannot be created.
+    Audit logging is intentionally non-blocking:
+    a logging failure must never interrupt the main invoice workflow.
     """
 
     data = {
@@ -28,6 +32,8 @@ def create_audit_log(
     }
 
     try:
+        supabase = get_supabase_client()
+
         response = (
             supabase
             .table("audit_logs")
@@ -40,5 +46,10 @@ def create_audit_log(
 
         return None
 
-    except Exception:
+    except Exception as exc:
+        logger.warning(
+            "Audit log could not be created: %s",
+            exc.__class__.__name__
+        )
+
         return None

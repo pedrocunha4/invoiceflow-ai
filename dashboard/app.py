@@ -63,7 +63,10 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "api.unexpected_format": "Unexpected response format.",
         "api.connect_error": "Could not connect to the API: {error}",
         "api.status_failed": "Status update failed (HTTP {code}).",
-        "api.unreachable": "The API is not reachable at {url}. Start the FastAPI server and reload the page.",
+        "api.unreachable": "The service is currently unavailable. " "Please try again later.",
+        "api.service_unavailable": ("The service is temporarily unavailable. " "Please try again later."),
+        "api.connection_unavailable": ("The service could not be reached. " "Please try again later."),
+        "api.request_failed": ("The request could not be completed. " "Please try again."),
         "error.stats": "Unable to load dashboard statistics: {error}",
         "error.invoices": "Unable to load invoices: {error}",
         "error.invoice": "Unable to load invoice: {error}",
@@ -124,6 +127,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "process.failed": "The invoice could not be processed. HTTP {code}.",
         "process.details": "Technical details",
         "process.empty_body": "The response body was empty.",
+        "process.service_error": ("The invoice could not be processed at the moment. " "Please try again later."),
         # Review
         "review.title": "Invoice Review",
         "review.caption": "Verify the AI-extracted data and record your decision.",
@@ -170,7 +174,10 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "api.unexpected_format": "Formato de resposta inesperado.",
         "api.connect_error": "Não foi possível ligar à API: {error}",
         "api.status_failed": "Falha ao atualizar o estado (HTTP {code}).",
-        "api.unreachable": "A API não está acessível em {url}. Inicie o servidor FastAPI e recarregue a página.",
+        "api.unreachable": "O serviço está atualmente indisponível. " "Tente novamente mais tarde.",
+        "api.service_unavailable": ("O serviço está temporariamente indisponível. " "Tente novamente mais tarde."),
+        "api.connection_unavailable": ("Não foi possível contactar o serviço. " "Tente novamente mais tarde."),
+        "api.request_failed": ("Não foi possível concluir o pedido. " "Tente novamente."),
         "error.stats": "Não foi possível carregar as estatísticas do painel: {error}",
         "error.invoices": "Não foi possível carregar as faturas: {error}",
         "error.invoice": "Não foi possível carregar a fatura: {error}",
@@ -231,6 +238,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "process.failed": "Não foi possível processar a fatura. HTTP {code}.",
         "process.details": "Detalhes técnicos",
         "process.empty_body": "O corpo da resposta estava vazio.",
+        "process.service_error": ("Não foi possível processar a fatura neste momento. " "Tente novamente mais tarde."),
         # Review
         "review.title": "Revisão de faturas",
         "review.caption": "Verifique os dados extraídos pela IA e registe a sua decisão.",
@@ -420,15 +428,39 @@ def field(label: str, value: Any, highlight: bool = False) -> None:
 # ---------------------------------------------------------------------------
 
 
-def api_get(path: str, timeout: int = 10) -> Tuple[Optional[Any], Optional[str]]:
+def api_get(
+    path: str,
+    timeout: int = 10
+) -> Tuple[Optional[Any], Optional[str]]:
+
     try:
-        response = requests.get(f"{API_BASE_URL}{path}", timeout=timeout)
-        response.raise_for_status()
+        response = requests.get(
+            f"{API_BASE_URL}{path}",
+            timeout=timeout
+        )
+
+    except requests.RequestException:
+        return None, t(
+            "api.connection_unavailable"
+        )
+
+    if response.status_code >= 500:
+        return None, t(
+            "api.service_unavailable"
+        )
+
+    if response.status_code >= 400:
+        return None, t(
+            "api.request_failed"
+        )
+
+    try:
         return response.json(), None
-    except requests.RequestException as exc:
-        return None, str(exc)
+
     except ValueError:
-        return None, t("api.invalid_json")
+        return None, t(
+            "api.invalid_json"
+        )
 
 
 def check_api_health() -> bool:
@@ -529,18 +561,39 @@ def process_invoice(uploaded_file: Any) -> Tuple[str, Any]:
     )
 
 
-def update_invoice_status(invoice_id: Any, new_status: str) -> Tuple[bool, str]:
+def update_invoice_status(
+    invoice_id: Any,
+    new_status: str
+) -> Tuple[bool, str]:
+
     try:
         response = requests.patch(
             f"{API_BASE_URL}/invoices/{invoice_id}/status",
-            json={"status": new_status},
+            json={
+                "status": new_status
+            },
             timeout=10,
         )
-    except requests.RequestException as exc:
-        return False, t("api.connect_error", error=exc)
+
+    except requests.RequestException:
+        return (
+            False,
+            t("api.connection_unavailable")
+        )
+
     if response.status_code == 200:
         return True, ""
-    return False, t("api.status_failed", code=response.status_code)
+
+    if response.status_code >= 500:
+        return (
+            False,
+            t("api.service_unavailable")
+        )
+
+    return (
+        False,
+        t("api.request_failed")
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -978,27 +1031,9 @@ def render_processing_result(
 
     else:
 
-        status_code, body = payload
-
         st.error(
-            t("process.failed", code=status_code)
+            t("process.service_error")
         )
-
-        with st.expander(
-            t("process.details")
-        ):
-
-            if isinstance(
-                body,
-                (dict, list)
-            ):
-                st.json(body)
-
-            else:
-                st.text(
-                    body
-                    or t("process.empty_body")
-                )
 
 def render_upload_section() -> None:
 
