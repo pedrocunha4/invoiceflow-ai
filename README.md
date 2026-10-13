@@ -35,18 +35,14 @@ InvoiceFlow AI currently supports:
 The system follows a modular architecture where each component has a specific responsibility.
 
 ```mermaid
-flowchart LR
+flowchart TD
     A[Invoice PDF] --> B[FastAPI API]
-
     B --> C[PDF Validation]
     C --> D[SHA-256 Duplicate Check]
-
     D --> E[PDF Text Extraction]
-    E --> F[Groq AI]
-
+    E --> F[Groq AI Extraction]
     F --> G[Pydantic Validation]
     G --> H[Business Rules]
-
     H --> I[Supabase Storage]
     I --> J[Supabase PostgreSQL]
 
