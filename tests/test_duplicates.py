@@ -19,12 +19,12 @@ def test_duplicate_invoice_by_file_hash(
     }
 
     monkeypatch.setattr(
-        "api.main.find_invoice_by_hash",
+        "api.routes.processing.find_invoice_by_hash",
         lambda file_hash: existing_invoice,
     )
 
     monkeypatch.setattr(
-        "api.main.create_audit_log",
+        "api.routes.processing.create_audit_log",
         lambda **kwargs: None,
     )
 
@@ -70,27 +70,27 @@ def test_duplicate_invoice_by_invoice_number(
     }
 
     monkeypatch.setattr(
-        "api.main.create_audit_log",
+        "api.routes.processing.create_audit_log",
         lambda **kwargs: None,
     )
 
     monkeypatch.setattr(
-        "api.main.find_invoice_by_hash",
+        "api.routes.processing.find_invoice_by_hash",
         lambda file_hash: None,
     )
 
     monkeypatch.setattr(
-        "api.main.extract_text_from_pdf",
+        "api.routes.processing.extract_text_from_pdf",
         lambda content: "Fake invoice text",
     )
 
     monkeypatch.setattr(
-        "api.main.extract_invoice_data",
+        "api.routes.processing.extract_invoice_data",
         lambda text: extracted_invoice,
     )
 
     monkeypatch.setattr(
-        "api.main.find_invoice_by_number",
+        "api.routes.processing.find_invoice_by_number",
         lambda supplier_vat_number, invoice_number:
             existing_invoice,
     )

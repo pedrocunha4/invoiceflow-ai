@@ -2,11 +2,11 @@ from datetime import date
 
 from fastapi.testclient import TestClient
 
-from api.main import (
-    app,
+from api.core.errors import (
     database_http_exception,
     storage_http_exception,
 )
+from api.main import app
 from api.models.invoice import InvoiceData
 from api.services.ai_service import (
     AIServiceUnavailableError,
@@ -117,17 +117,17 @@ def test_ai_unavailable_returns_503(
 ):
 
     monkeypatch.setattr(
-        "api.main.create_audit_log",
+        "api.routes.processing.create_audit_log",
         lambda **kwargs: None,
     )
 
     monkeypatch.setattr(
-        "api.main.find_invoice_by_hash",
+        "api.routes.processing.find_invoice_by_hash",
         lambda file_hash: None,
     )
 
     monkeypatch.setattr(
-        "api.main.extract_text_from_pdf",
+        "api.routes.processing.extract_text_from_pdf",
         lambda content: "Fake invoice text",
     )
 
@@ -137,7 +137,7 @@ def test_ai_unavailable_returns_503(
         )
 
     monkeypatch.setattr(
-        "api.main.extract_invoice_data",
+        "api.routes.processing.extract_invoice_data",
         raise_ai_unavailable,
     )
 
@@ -186,39 +186,45 @@ def test_pdf_is_deleted_when_database_save_fails(
 
     deleted_files = []
 
-    # Audit must not contact Supabase during the test
+    # Audit calls inside processing.py
     monkeypatch.setattr(
-        "api.main.create_audit_log",
+        "api.routes.processing.create_audit_log",
+        lambda **kwargs: None,
+    )
+
+    # Audit calls performed by core error helpers
+    monkeypatch.setattr(
+        "api.core.errors.create_audit_log",
         lambda **kwargs: None,
     )
 
     # No duplicate by hash
     monkeypatch.setattr(
-        "api.main.find_invoice_by_hash",
+        "api.routes.processing.find_invoice_by_hash",
         lambda file_hash: None,
     )
 
     # Fake PDF extraction
     monkeypatch.setattr(
-        "api.main.extract_text_from_pdf",
+        "api.routes.processing.extract_text_from_pdf",
         lambda content: "Fake invoice text",
     )
 
     # Fake AI result
     monkeypatch.setattr(
-        "api.main.extract_invoice_data",
+        "api.routes.processing.extract_invoice_data",
         lambda text: extracted_invoice,
     )
 
     # No duplicate by invoice number
     monkeypatch.setattr(
-        "api.main.find_invoice_by_number",
+        "api.routes.processing.find_invoice_by_number",
         lambda supplier_vat_number, invoice_number: None,
     )
 
     # Fake business validation
     monkeypatch.setattr(
-        "api.main.validate_invoice_business_rules",
+        "api.routes.processing.validate_invoice_business_rules",
         lambda invoice: {
             "is_valid": True,
             "status": "approved",
@@ -228,13 +234,13 @@ def test_pdf_is_deleted_when_database_save_fails(
 
     # Fake storage path
     monkeypatch.setattr(
-        "api.main.build_invoice_file_path",
+        "api.routes.processing.build_invoice_file_path",
         lambda **kwargs: stored_path,
     )
 
     # Pretend Storage upload succeeded
     monkeypatch.setattr(
-        "api.main.upload_invoice_pdf",
+        "api.routes.processing.upload_invoice_pdf",
         lambda file_path, content: stored_path,
     )
 
@@ -245,7 +251,7 @@ def test_pdf_is_deleted_when_database_save_fails(
         )
 
     monkeypatch.setattr(
-        "api.main.save_invoice",
+        "api.routes.processing.save_invoice",
         fail_database_save,
     )
 
@@ -258,7 +264,7 @@ def test_pdf_is_deleted_when_database_save_fails(
         )
 
     monkeypatch.setattr(
-        "api.main.delete_invoice_pdf",
+        "api.routes.processing.delete_invoice_pdf",
         fake_delete_invoice_pdf,
     )
 
