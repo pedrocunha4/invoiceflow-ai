@@ -1,0 +1,2499 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+/* ==========================================================================
+   InvoiceFlow AI
+   Main Streamlit stylesheet
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   Design tokens
+   -------------------------------------------------------------------------- */
+
+:root {
+    --accent: #22D3EE;
+    --accent-2: #3B82F6;
+
+    --card: #0F1A2E;
+    --panel-2: #131B2B;
+
+    --line: #1C2A44;
+    --line-strong: #2A3D60;
+
+    --ink: #E8EDF5;
+    --muted: #94A3B8;
+    --faint: #5B6A85;
+
+    --ok: #34D399;
+    --warn: #FBBF24;
+    --bad: #F87171;
+
+    --shadow:
+        0 8px 24px
+        rgba(2, 8, 23, 0.35);
+
+    --shadow-hover:
+        0 14px 30px
+        rgba(2, 8, 23, 0.50);
+
+    --ease: 0.2s ease;
+
+    --font-heading:
+        "Outfit",
+        system-ui,
+        sans-serif;
+
+    --font-ui:
+        "Plus Jakarta Sans",
+        system-ui,
+        sans-serif;
+
+    --font-mono:
+        "Geist Mono",
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Consolas,
+        monospace;
+}
+
+
+/* --------------------------------------------------------------------------
+   Global / Streamlit shell
+   -------------------------------------------------------------------------- */
+
+html {
+    font-size: 106.25% !important;
+}
+
+
+[data-testid="stHeader"] {
+    background: transparent;
+}
+
+
+[data-testid="stAppDeployButton"],
+.stDeployButton,
+#MainMenu,
+footer {
+    display: none !important;
+}
+
+
+.block-container {
+    padding-top: 1.2rem;
+    padding-bottom: 2rem;
+
+    max-width: 1280px;
+}
+
+
+/* --------------------------------------------------------------------------
+   Header / top bar
+   -------------------------------------------------------------------------- */
+
+.st-key-app_header {
+    border-bottom: 1px solid var(--line);
+
+    padding-bottom: 0.8rem;
+
+    margin-bottom: 0.6rem;
+}
+
+
+.st-key-app_header h1 {
+    font-size: 1.25rem !important;
+
+    font-weight: 650 !important;
+
+    letter-spacing: -0.01em;
+
+    padding:
+        0
+        0
+        0.1rem
+        0 !important;
+}
+
+
+.st-key-lang {
+    margin-top: 1rem;
+}
+
+
+.st-key-lang button {
+    font-size: 0.78rem;
+    min-height: 2rem;
+    padding:
+        0.15rem
+        0.5rem;
+}
+
+
+/* --------------------------------------------------------------------------
+   Typography
+   -------------------------------------------------------------------------- */
+
+[data-testid="stMain"] h3 {
+    font-size: 1.6rem !important;
+
+    font-weight: 650 !important;
+
+    letter-spacing: -0.015em;
+
+    margin-top: 0;
+
+    padding:
+        0
+        0
+        0.1rem
+        0 !important;
+}
+
+
+[data-testid="stCaptionContainer"],
+[data-testid="stCaptionContainer"] p {
+    color: var(--muted) !important;
+}
+
+
+[data-testid="stCaptionContainer"] {
+    margin-bottom: 0;
+}
+
+
+hr {
+    margin: 1rem 0 !important;
+}
+
+
+/* --------------------------------------------------------------------------
+   Cards
+   -------------------------------------------------------------------------- */
+
+.st-key-card_chart,
+.st-key-card_queue,
+.st-key-registry_panel,
+.st-key-process_card,
+.st-key-card_review_top,
+.st-key-card_supplier,
+.st-key-card_financial,
+.st-key-card_checks,
+.st-key-card_pdf,
+.st-key-card_decision {
+    background: var(--card);
+
+    border-color: var(--line) !important;
+
+    border-radius: 14px !important;
+
+    box-shadow: var(--shadow);
+
+    transition:
+        border-color var(--ease),
+        box-shadow var(--ease);
+}
+
+/* Decision buttons row */
+
+.st-key-card_decision
+[data-testid="stHorizontalBlock"] {
+    gap: 0.45rem !important;
+
+    padding-top: 0.65rem;
+}
+
+
+.st-key-card_chart:hover,
+.st-key-card_queue:hover,
+.st-key-registry_panel:hover,
+.st-key-process_card:hover,
+.st-key-card_review_top:hover,
+.st-key-card_supplier:hover,
+.st-key-card_financial:hover,
+.st-key-card_checks:hover,
+.st-key-card_pdf:hover {
+    border-color: var(--line-strong) !important;
+    box-shadow: var(--shadow-hover);
+}
+
+
+.card-head {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    margin:
+        -1rem
+        -1rem
+        0.2rem;
+
+    padding:
+        0.95rem
+        1.1rem;
+
+    border-bottom:
+        1px solid var(--line);
+}
+
+
+.card-title {
+    font-weight: 650;
+
+    font-size: 1.02rem;
+
+    color: #F1F5F9;
+}
+
+
+.card-sub {
+    font-size: 0.8rem;
+
+    color: var(--muted);
+
+    margin-top: 0.15rem;
+}
+
+
+.count-badge {
+    background:
+        rgba(
+            251,
+            191,
+            36,
+            0.16
+        );
+
+    color: var(--warn);
+
+    border:
+        1px solid
+        rgba(
+            251,
+            191,
+            36,
+            0.35
+        );
+
+    border-radius: 999px;
+
+    padding:
+        0.05rem
+        0.6rem;
+
+    font-size: 0.78rem;
+
+    font-weight: 650;
+}
+
+
+/* --------------------------------------------------------------------------
+   KPI cards
+   -------------------------------------------------------------------------- */
+
+/* Reduce ONLY the spacing between the 5 KPI columns */
+.st-key-kpi_row [data-testid="stHorizontalBlock"] {
+    gap: 0.45rem !important;
+}
+
+
+/* Allow each Streamlit column to use its available width correctly */
+.st-key-kpi_row [data-testid="stColumn"] {
+    min-width: 0 !important;
+}
+
+
+/* KPI card */
+.kpi {
+    --tone: var(--accent);
+
+    box-sizing: border-box;
+
+    width: 100%;
+    height: 132px;
+    min-height: 132px;
+
+    display: flex;
+    flex-direction: column;
+
+    background:
+        linear-gradient(
+            180deg,
+            #111D33 0%,
+            #0E182B 100%
+        );
+
+    border: 1px solid var(--line);
+
+    border-radius: 14px;
+
+    padding:
+        1rem
+        0.9rem
+        0.9rem;
+
+    margin-bottom: 0.9rem;
+
+    box-shadow: var(--shadow);
+
+    transition:
+        transform var(--ease),
+        box-shadow var(--ease),
+        border-color var(--ease);
+}
+
+
+.kpi:hover {
+    transform: translateY(-2px);
+
+    border-color: var(--line-strong);
+
+    box-shadow: var(--shadow-hover);
+}
+
+
+/* KPI tones */
+
+.kpi-ok {
+    --tone: var(--ok);
+}
+
+
+.kpi-warn {
+    --tone: var(--warn);
+}
+
+
+.kpi-bad {
+    --tone: var(--bad);
+}
+
+
+/* Top row: icon + label */
+
+.kpi-top {
+    display: flex;
+    align-items: center;
+
+    gap: 0.5rem;
+
+    min-width: 0;
+
+    color: var(--muted);
+
+    line-height: 1.15;
+}
+
+
+.kpi-icon {
+    width: 28px;
+    height: 28px;
+
+    flex: 0 0 28px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 8px;
+
+    color: var(--tone);
+
+    background:
+        color-mix(
+            in srgb,
+            var(--tone) 12%,
+            transparent
+        );
+
+    border:
+        1px solid
+        color-mix(
+            in srgb,
+            var(--tone) 32%,
+            transparent
+        );
+}
+
+
+.kpi-label {
+    min-width: 0;
+
+    color: var(--muted);
+
+    font-size: 0.76rem;
+    font-weight: 500;
+
+    white-space: nowrap;
+}
+
+
+/* Number / monetary value */
+
+.kpi-value {
+    margin-top: 0.7rem;
+
+    font-family: var(--font-heading);
+
+    color: var(--ink);
+
+    font-size: 1.75rem;
+    font-weight: 600;
+
+    line-height: 1;
+
+    letter-spacing: -0.02em;
+
+    font-variant-numeric: tabular-nums;
+
+    white-space: nowrap;
+}
+
+
+.kpi-ok .kpi-value,
+.kpi-warn .kpi-value,
+.kpi-bad .kpi-value {
+    color: var(--tone);
+}
+
+
+/* Footer: progress bar + text */
+
+.kpi-foot {
+    display: flex;
+    align-items: center;
+
+    gap: 0.5rem;
+
+    margin-top: auto;
+
+    padding-top: 0.65rem;
+
+    color: var(--muted);
+}
+
+
+.kpi-bar {
+    flex: 1;
+
+    min-width: 18px;
+
+    height: 4px;
+
+    border-radius: 99px;
+
+    background:
+        rgba(
+            148,
+            163,
+            184,
+            0.16
+        );
+
+    overflow: hidden;
+}
+
+
+.kpi-bar span {
+    display: block;
+
+    height: 100%;
+
+    border-radius: 99px;
+
+    background: var(--tone);
+}
+
+
+.kpi-note {
+    color: var(--muted);
+
+    font-size: 0.68rem;
+
+    white-space: nowrap;
+}
+
+
+/* The longest KPI label needs slightly more compact internal spacing */
+.kpi-money {
+    padding-left: 0.7rem;
+    padding-right: 0.7rem;
+}
+
+
+.kpi-money .kpi-top {
+    gap: 0.35rem;
+}
+
+
+.kpi-money .kpi-icon {
+    width: 25px;
+    height: 25px;
+
+    flex-basis: 25px;
+}
+
+
+.kpi-money .kpi-label {
+    font-size: 0.66rem;
+
+    letter-spacing: -0.025em;
+
+    white-space: nowrap;
+}
+
+
+/* --------------------------------------------------------------------------
+   Dashboard chart + review queue alignment
+   -------------------------------------------------------------------------- */
+
+/*
+   Match the spacing used by the KPI row:
+   chart spans KPI 1–3
+   queue spans KPI 4–5.
+*/
+
+.st-key-dashboard_mid_row [data-testid="stHorizontalBlock"] {
+    gap: 0.45rem !important;
+}
+
+
+.st-key-dashboard_mid_row [data-testid="stColumn"] {
+    min-width: 0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Review Queue
+   -------------------------------------------------------------------------- */
+
+.q-list {
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.q-row {
+    display: flex;
+
+    align-items: center;
+
+    gap: 0.8rem;
+
+    padding:
+        0.72rem
+        0.3rem;
+
+    border-bottom:
+        1px solid var(--line);
+
+    transition:
+        background-color var(--ease);
+}
+
+
+.q-row:last-child {
+    border-bottom: 0;
+}
+
+
+.q-row:hover {
+    background:
+        rgba(
+            34,
+            211,
+            238,
+            0.045
+        );
+}
+
+
+.q-dot {
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: var(--warn);
+
+    flex: none;
+}
+
+
+.q-main {
+    flex: 1;
+
+    min-width: 0;
+}
+
+
+.q-name {
+    font-weight: 600;
+
+    font-size: 0.92rem;
+
+    color: #F1F5F9;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+.q-meta {
+    font-size: 0.76rem;
+
+    color: var(--muted);
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+.q-amount {
+    font-weight: 650;
+
+    font-size: 0.9rem;
+
+    font-variant-numeric: tabular-nums;
+
+    color: #F1F5F9;
+}
+
+
+.q-empty {
+    color: var(--muted);
+
+    font-size: 0.9rem;
+
+    padding:
+        1rem
+        0.3rem;
+}
+
+
+/* --------------------------------------------------------------------------
+   Invoice Registry
+   -------------------------------------------------------------------------- */
+
+.flabel {
+    font-size: 0.68rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 0.1rem;
+}
+
+
+/* --------------------------------------------------------------------------
+   Status badges
+   -------------------------------------------------------------------------- */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+    padding:
+        0.14rem
+        0.65rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border:
+        1px solid;
+}
+
+.badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.badge-ok {
+    color: var(--ok);
+    
+    background:
+        rgba(
+            52,
+            211,
+            153,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            52,
+            211,
+            153,
+            0.35
+        );
+}
+
+.badge-warn {
+    color: var(--warn);
+
+    background:
+        rgba(
+            251,
+            191,
+            36,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            251,
+            191,
+            36,
+            0.35
+        );
+}
+
+
+.badge-bad {
+    color: var(--bad);
+
+    background:
+        rgba(
+            248,
+            113,
+            113,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            248,
+            113,
+            113,
+            0.35
+        );
+}
+
+
+.badge-neutral {
+    color: var(--muted);
+
+    background:
+        rgba(
+            148,
+            163,
+            184,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            148,
+            163,
+            184,
+            0.30
+        );
+}
+
+
+/* --------------------------------------------------------------------------
+   Sidebar
+   -------------------------------------------------------------------------- */
+
+[data-testid="stSidebar"][aria-expanded="true"] {
+    width: 262px !important;
+
+    min-width: 262px !important;
+}
+
+
+[data-testid="stSidebar"] {
+    background:
+        linear-gradient(
+            180deg,
+            #0A1222 0%,
+            #08101D 100%
+        );
+
+    border-right:
+        1px solid #16233B;
+}
+
+
+.brand {
+    display: flex;
+
+    align-items: center;
+
+    gap: 0.7rem;
+
+    padding:
+        0.1rem
+        0.2rem
+        0.9rem;
+
+    margin-top: -40px;
+    margin-bottom: 1.5rem;
+}
+
+
+.brand img {
+    width: 36px;
+
+    height: 36px;
+
+    border-radius: 9px;
+}
+
+
+.brand-name {
+    font-weight: 700;
+
+    font-size: 1.05rem;
+
+    color: #F8FAFC;
+
+    line-height: 1.15;
+}
+
+
+.brand-name span {
+    color: var(--accent);
+}
+
+
+.brand-sub {
+    font-size: 0.72rem;
+
+    color: var(--muted);
+}
+
+
+[data-testid="stSidebar"]
+[data-testid="stRadioGroup"] {
+    gap: 0.25rem;
+
+    align-items: stretch !important;
+}
+
+
+[data-testid="stSidebar"]
+[data-testid="stRadioGroup"] > div {
+    width: 100%;
+}
+
+
+[data-testid="stSidebar"]
+[data-testid="stRadioOption"]
+> div
+> div:first-child:not(
+    [data-testid="stMarkdownContainer"]
+) {
+    display: none !important;
+}
+
+
+[data-testid="stSidebar"]
+[data-testid="stRadio"]
+label {
+    padding:
+        0.65rem
+        0.85rem;
+
+    border-radius: 10px;
+
+    width: 100%;
+
+    cursor: pointer;
+
+    border:
+        1px solid transparent;
+
+    transition:
+        background-color var(--ease),
+        border-color var(--ease),
+        color var(--ease);
+}
+
+
+[data-testid="stSidebar"]
+[data-testid="stRadio"]
+label p {
+    font-size: 0.98rem;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 0.55rem;
+}
+
+
+[data-testid="stSidebar"]
+[data-testid="stRadio"]
+label:hover {
+    background-color: #0F1B31;
+}
+
+
+[data-testid="stSidebar"]
+[data-testid="stRadio"]
+label:has(input:checked) {
+    background:
+        linear-gradient(
+            90deg,
+            rgba(34, 211, 238, 0.14),
+            rgba(59, 130, 246, 0.10)
+        );
+
+    border-color:
+        rgba(
+            34,
+            211,
+            238,
+            0.35
+        );
+}
+
+
+[data-testid="stSidebar"]
+[data-testid="stRadio"]
+label:has(input:checked) p {
+    color: var(--accent);
+}
+
+
+/* API status */
+
+.st-key-sidebar_status {
+    position: fixed;
+    bottom: 2rem;
+    left: 1rem;
+    width: 230px;
+}
+
+
+.api-card {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding:
+        0.7rem
+        0.85rem;
+
+    border:
+        1px solid var(--line);
+
+    border-radius: 12px;
+
+    background:
+        rgba(
+            15,
+            26,
+            46,
+            0.70
+        );
+
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #E2E8F0;
+}
+
+
+.api-dot {
+    width: 8px;
+
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: var(--ok);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(
+            52,
+            211,
+            153,
+            0.18
+        );
+
+    flex: none;
+}
+
+
+.api-card-off .api-dot {
+    background: var(--bad);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(
+            248,
+            113,
+            113,
+            0.18
+        );
+}
+
+
+/* --------------------------------------------------------------------------
+   Process Invoice
+   -------------------------------------------------------------------------- */
+
+.st-key-process_card {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Process Invoice uploader
+   Static styling only.
+   Translated pseudo-element text remains dynamic in app.py.
+   -------------------------------------------------------------------------- */
+
+[data-testid="stFileUploaderDropzone"] {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    text-align: center;
+
+    background:
+        rgba(
+            15,
+            26,
+            46,
+            0.55
+        );
+
+    border:
+        1.5px dashed
+        var(--line-strong);
+
+    border-radius: 14px;
+
+    padding:
+        2rem
+        1.5rem;
+
+    min-height: 190px;
+
+    transition:
+        border-color var(--ease),
+        background-color var(--ease);
+}
+
+
+[data-testid="stFileUploaderDropzone"]:hover {
+    border-color: var(--accent);
+
+    background:
+        rgba(
+            34,
+            211,
+            238,
+            0.04
+        );
+}
+
+
+[data-testid="stFileUploaderDropzone"] > * {
+    position: relative;
+
+    z-index: 1;
+}
+
+
+[data-testid="stFileUploaderDropzoneInstructions"] {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 0.25rem;
+}
+
+
+[data-testid="stFileUploaderDropzoneInstructions"] > div {
+    display: none;
+}
+
+
+/* --------------------------------------------------------------------------
+   Invoice Review
+   -------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------
+   Invoice Review — two-column height alignment
+   -------------------------------------------------------------------------- */
+
+/* Make the two main review columns stretch to the same height */
+[data-testid="stHorizontalBlock"]:has(.st-key-review_left_stack):has(.st-key-card_pdf) {
+    align-items: stretch !important;
+}
+
+
+/* Each Streamlit column becomes a vertical flex container */
+[data-testid="stHorizontalBlock"]:has(.st-key-review_left_stack):has(.st-key-card_pdf)
+> [data-testid="stColumn"] {
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* Left stack fills the whole available column height */
+.st-key-review_left_stack {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+
+    height: 100%;
+}
+
+
+/* Streamlit's internal vertical block must also fill the height */
+.st-key-review_left_stack > [data-testid="stVerticalBlock"] {
+    display: flex;
+    flex-direction: column;
+
+    flex: 1 1 auto;
+    height: 100%;
+}
+
+
+/* Validation Checks uses the remaining free space */
+.st-key-review_left_stack .st-key-card_checks {
+    flex: 1 1 auto;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* Make the content of Validation Checks fill its card */
+.st-key-review_left_stack
+.st-key-card_checks
+> [data-testid="stVerticalBlock"] {
+    flex: 1 1 auto;
+}
+
+   /* Queue count beside the page title */
+
+.review-queue-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: fit-content;
+
+    margin-left: auto;
+    margin-right: 0;
+    padding: 0.3rem 0.65rem;
+
+    border:
+        1px solid
+        rgba(251, 191, 36, 0.35);
+
+    border-radius: 8px;
+
+    background:
+        rgba(251, 191, 36, 0.08);
+
+    color: var(--warn);
+
+    font-size: 0.72rem;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+/* Align awaiting-review pill with the right edge of the review card */
+[data-testid="stMarkdownContainer"]:has(.review-queue-pill) {
+    width: 100% !important;
+
+    display: flex !important;
+    justify-content: flex-end !important;
+}
+
+/* Main invoice selector/header card */
+
+.st-key-card_review_top {
+    width: 100%;
+
+    padding: 0.9rem 1rem 1rem;
+
+    margin-bottom: 0.15rem;
+}
+
+.st-key-card_review_top
+.st-key-review_invoice_id {
+    max-width: 560px;
+}
+
+.st-key-review_previous button,
+.st-key-review_next button {
+    min-height: 2.35rem !important;
+    height: 2.35rem !important;
+
+    padding: 0 !important;
+
+    border:
+        1px solid
+        var(--line-strong) !important;
+
+    border-radius: 9px !important;
+
+    background:
+        rgba(11, 18, 32, 0.45) !important;
+
+    color: var(--muted) !important;
+
+    font-size: 1rem !important;
+
+    box-shadow: none !important;
+}
+
+
+.st-key-review_previous button:hover:not(:disabled),
+.st-key-review_next button:hover:not(:disabled) {
+    color: var(--ink) !important;
+
+    border-color:
+        rgba(34, 211, 238, 0.40) !important;
+
+    background:
+        rgba(34, 211, 238, 0.05) !important;
+
+    transform: none;
+}
+
+/* Invoice identity row */
+
+.review-invoice-head {
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    margin-top: 0.85rem;
+
+    padding-top: 0.9rem;
+
+    border-top:
+        1px solid var(--line);
+}
+
+
+.review-last-update {
+    display: flex;
+    align-items: center;
+
+    padding-top: 0.35rem;
+
+    color: var(--faint);
+
+    font-size: 0.72rem;
+    font-weight: 500;
+
+    white-space: nowrap;
+}
+
+.st-key-review_invoice_id label p {
+    font-size: 0.7rem !important;
+
+    letter-spacing: 0.09em;
+
+    text-transform: uppercase;
+
+    color: var(--muted);
+
+    font-weight: 600;
+}
+
+
+/* AI warning banner */
+
+.review-flag {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: 100%;
+    margin-top: 0.8rem;
+    margin-bottom: 0.65rem;
+    padding:
+        0.55rem
+        0.75rem;
+
+    border:
+        1px solid
+        rgba(251, 191, 36, 0.32);
+
+    border-radius: 8px;
+
+    background:
+        rgba(251, 191, 36, 0.06);
+
+    color: var(--ink);
+
+    font-size: 0.75rem;
+    line-height: 1.35;
+}
+
+
+.review-flag strong {
+    color: var(--warn);
+
+    font-weight: 600;
+}
+
+
+.review-flag-icon {
+    display: grid;
+    place-items: center;
+
+    flex: none;
+
+    color: var(--warn);
+}
+
+
+.review-flag-icon svg {
+    width: 15px;
+    height: 15px;
+}
+
+.inv-head {
+    display: flex;
+    align-items: center;
+
+    gap: 0.65rem;
+
+    margin: 0;
+
+    flex-wrap: wrap;
+}
+
+
+.inv-no {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: #F8FAFC;
+}
+
+
+.inv-sub {
+    color: var(--muted);
+
+    font-size: 0.78rem;
+
+    margin-top: 0.15rem;
+    margin-bottom: 0;
+}
+
+
+.kvs,
+.chks {
+    padding-bottom: 0.35rem;
+}
+
+
+.kv {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 1rem;
+
+    padding:
+        0.66rem
+        0;
+
+    border-bottom:
+        1px solid var(--line);
+
+    font-size: 0.92rem;
+}
+
+
+.kv:last-child {
+    border-bottom: 0;
+}
+
+
+.kv-k {
+    color: var(--muted);
+}
+
+
+.kv-v {
+    font-weight: 600;
+
+    color: #F1F5F9;
+
+    text-align: right;
+
+    font-variant-numeric: tabular-nums;
+}
+
+
+.kv-total {
+    margin-top: 0.5rem;
+    margin-bottom: 0.65rem;
+    padding:
+        0.75rem
+        0.9rem;
+    border:
+        1px solid
+        rgba(
+            34,
+            211,
+            238,
+            0.45
+        );
+    border-radius: 10px;
+    background:
+        rgba(
+            34,
+            211,
+            238,
+            0.07
+        );
+}
+
+.kv-total .kv-k {
+    color: #E2E8F0;
+
+    font-weight: 600;
+}
+
+.kv-total .kv-v {
+    color: var(--accent);
+
+    font-size: 1.15rem;
+
+    font-weight: 700;
+}
+
+
+/* Validation checks */
+
+.chk {
+    display: flex;
+
+    align-items: center;
+
+    gap: 0.75rem;
+
+    padding:
+        0.62rem
+        0;
+
+    border-bottom:
+        1px solid var(--line);
+}
+
+
+.chk:last-child {
+    border-bottom: 0;
+}
+
+
+.chk-ico {
+    width: 26px;
+
+    height: 26px;
+
+    border-radius: 8px;
+
+    display: grid;
+
+    place-items: center;
+
+    flex: none;
+
+    border:
+        1px solid;
+}
+
+
+.chk-label {
+    flex: 1;
+
+    font-size: 0.9rem;
+
+    color: #E2E8F0;
+}
+
+
+.chk-status {
+    font-size: 0.8rem;
+
+    font-weight: 600;
+}
+
+
+.chk-ok {
+    color: var(--ok);
+}
+
+
+.chk-ico.chk-ok {
+    background:
+        rgba(
+            52,
+            211,
+            153,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            52,
+            211,
+            153,
+            0.35
+        );
+}
+
+
+.chk-warn {
+    color: var(--warn);
+}
+
+
+.chk-ico.chk-warn {
+    background:
+        rgba(
+            251,
+            191,
+            36,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            251,
+            191,
+            36,
+            0.35
+        );
+}
+
+
+.chk-bad {
+    color: var(--bad);
+}
+
+
+.chk-ico.chk-bad {
+    background:
+        rgba(
+            248,
+            113,
+            113,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            248,
+            113,
+            113,
+            0.35
+        );
+}
+
+
+/* PDF */
+
+.st-key-card_pdf .pdf-file-name {
+    max-width: 330px;
+    font-size: 0.84rem !important;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pdf-head {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+
+.pdf-ico {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    color: var(--bad);
+    background:
+        rgba(
+            248,
+            113,
+            113,
+            0.10
+        );
+
+    border:
+        1px solid
+        rgba(
+            248,
+            113,
+            113,
+            0.30
+        );
+
+    flex: none;
+}
+
+
+.pdf-wrap {
+    border:
+        1px solid var(--line);
+
+    border-radius: 10px;
+    overflow: hidden;
+    background: #0B1220;
+}
+
+
+.pdf-frame {
+    display: block;
+    width: 100%;
+    height: 640px;
+    border: 0;
+}
+
+
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+
+.stElementContainer:has(.stButton),
+.element-container:has(.stButton),
+[data-testid="stElementContainer"]:has(
+    [data-testid="stButton"]
+) {
+    width: 100% !important;
+}
+
+
+.stButton,
+[data-testid="stButton"] {
+    width: 100% !important;
+}
+
+
+.stButton > button,
+[data-testid="stLinkButton"] a {
+    width: 100%;
+
+    min-height: 2.6rem;
+
+    font-weight: 500;
+
+    transition:
+        transform var(--ease),
+        box-shadow var(--ease),
+        border-color var(--ease),
+        background-color var(--ease),
+        color var(--ease);
+}
+
+
+.stButton > button:hover:not(:disabled),
+[data-testid="stLinkButton"] a:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 18px
+        rgba(
+            2,
+            8,
+            23,
+            0.45
+        );
+
+    border-color: var(--accent-2);
+}
+
+
+.stButton > button:active:not(:disabled),
+[data-testid="stLinkButton"] a:active {
+    transform: translateY(0);
+
+    box-shadow: none;
+}
+
+
+.stButton > button:disabled {
+    cursor: not-allowed;
+}
+
+
+/* Process button */
+
+.st-key-btn_process button {
+    min-height: 2.8rem;
+
+    font-weight: 600;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563EB 0%,
+            #0891B2 100%
+        );
+
+    border:
+        1px solid
+        rgba(
+            34,
+            211,
+            238,
+            0.45
+        );
+
+    color: #FFFFFF;
+
+    box-shadow:
+        0 6px 18px
+        rgba(
+            37,
+            99,
+            235,
+            0.35
+        );
+}
+
+
+.st-key-btn_process button:hover:not(:disabled) {
+    background:
+        linear-gradient(
+            135deg,
+            #2F6FF0 0%,
+            #0EA5C6 100%
+        );
+
+    border-color:
+        rgba(
+            34,
+            211,
+            238,
+            0.80
+        );
+
+    box-shadow:
+        0 12px 26px
+        rgba(
+            37,
+            99,
+            235,
+            0.45
+        );
+}
+
+
+.st-key-btn_process button:disabled {
+    opacity: 0.55;
+
+    box-shadow: none;
+
+    color: #CBD5E1;
+}
+
+
+/* --------------------------------------------------------------------------
+   Review decision cards
+   -------------------------------------------------------------------------- */
+
+.st-key-card_decision {
+    background: var(--card);
+
+    border-color: var(--line) !important;
+    border-radius: 14px !important;
+
+    box-shadow: var(--shadow);
+}
+
+
+/* Base structure */
+
+.st-key-btn_approve button,
+.st-key-btn_review button,
+.st-key-btn_reject button {
+    position: relative;
+
+    min-height: 4.8rem;
+
+    padding:
+        0.7rem
+        0.85rem;
+
+    border-radius: 10px !important;
+
+    display: grid !important;
+
+    grid-template-columns: 1fr;
+
+    grid-template-areas:
+        "title"
+        "desc";
+
+    row-gap: 0.15rem;
+
+    align-content: center;
+    justify-items: start;
+
+    text-align: left;
+
+    background: rgba(11, 18, 32, 0.40);
+
+    border:
+        1px solid
+        var(--line-strong);
+
+    box-shadow: none !important;
+
+    transition:
+        background-color var(--ease),
+        border-color var(--ease),
+        transform var(--ease);
+}
+
+
+/* Streamlit's real button content */
+
+.st-key-btn_approve button > div,
+.st-key-btn_review button > div,
+.st-key-btn_reject button > div {
+    grid-area: title;
+    width: 100%;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.4rem !important;
+}
+
+
+/* Native icon — keep it inline, do NOT turn it into a block */
+
+.st-key-btn_approve button [data-testid="stIconMaterial"],
+.st-key-btn_review button [data-testid="stIconMaterial"],
+.st-key-btn_reject button [data-testid="stIconMaterial"] {
+    display: inline-flex !important;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 24px;
+    height: 24px;
+
+    flex: 0 0 24px;
+
+    margin-right: 0.1rem;
+
+    border: 1px solid;
+    border-radius: 7px;
+
+    font-size: 13px !important;
+    line-height: 1 !important;
+}
+
+/* Approve icon — same visual language as Dashboard KPI */
+
+.st-key-btn_approve button [data-testid="stIconMaterial"] {
+    color: var(--ok);
+
+    background:
+        rgba(
+            52,
+            211,
+            153,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            52,
+            211,
+            153,
+            0.30
+        );
+}
+
+
+/* Needs Review icon */
+
+.st-key-btn_review button [data-testid="stIconMaterial"] {
+    color: var(--warn);
+
+    background:
+        rgba(
+            251,
+            191,
+            36,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            251,
+            191,
+            36,
+            0.30
+        );
+}
+
+
+/* Reject icon */
+
+.st-key-btn_reject button [data-testid="stIconMaterial"] {
+    color: var(--bad);
+
+    background:
+        rgba(
+            248,
+            113,
+            113,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            248,
+            113,
+            113,
+            0.30
+        );
+}
+
+
+/* Main title */
+
+.st-key-btn_approve button p,
+.st-key-btn_review button p,
+.st-key-btn_reject button p {
+    display: flex !important;
+    align-items: center !important;
+
+    min-height: 24px;
+
+    margin: 0 !important;
+
+    font-size: 0.82rem !important;
+    font-weight: 650;
+
+    line-height: 1 !important;
+}
+
+
+/* Description generated by app.py */
+
+.st-key-btn_approve button::after,
+.st-key-btn_review button::after,
+.st-key-btn_reject button::after {
+    grid-area: desc;
+
+    font-size: 0.68rem !important;
+    font-weight: 400;
+
+    line-height: 1.25;
+
+    color: var(--muted);
+}
+
+
+/* APPROVE */
+
+.st-key-btn_approve button {
+    color: var(--ok);
+}
+
+
+.st-key-btn_approve button:hover:not(:disabled) {
+    background:
+        rgba(
+            52,
+            211,
+            153,
+            0.06
+        );
+
+    border-color:
+        rgba(
+            52,
+            211,
+            153,
+            0.45
+        );
+
+    transform: translateY(-1px);
+}
+
+
+.st-key-btn_approve button:disabled {
+    opacity: 1;
+
+    background:
+        rgba(
+            52,
+            211,
+            153,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            52,
+            211,
+            153,
+            0.60
+        );
+}
+
+
+.st-key-btn_approve button:disabled * {
+    color: var(--ok) !important;
+}
+
+
+/* NEEDS REVIEW */
+
+.st-key-btn_review button {
+    color: var(--warn);
+}
+
+
+.st-key-btn_review button:hover:not(:disabled) {
+    background:
+        rgba(
+            251,
+            191,
+            36,
+            0.06
+        );
+
+    border-color:
+        rgba(
+            251,
+            191,
+            36,
+            0.45
+        );
+
+    transform: translateY(-1px);
+}
+
+
+.st-key-btn_review button:disabled {
+    opacity: 1;
+
+    background:
+        rgba(
+            251,
+            191,
+            36,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            251,
+            191,
+            36,
+            0.60
+        );
+}
+
+
+.st-key-btn_review button:disabled * {
+    color: var(--warn) !important;
+}
+
+
+/* REJECT */
+
+.st-key-btn_reject button {
+    color: var(--bad);
+}
+
+
+.st-key-btn_reject button:hover:not(:disabled) {
+    background:
+        rgba(
+            248,
+            113,
+            113,
+            0.06
+        );
+
+    border-color:
+        rgba(
+            248,
+            113,
+            113,
+            0.45
+        );
+
+    transform: translateY(-1px);
+}
+
+
+.st-key-btn_reject button:disabled {
+    opacity: 1;
+
+    background:
+        rgba(
+            248,
+            113,
+            113,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            248,
+            113,
+            113,
+            0.60
+        );
+}
+
+
+.st-key-btn_reject button:disabled * {
+    color: var(--bad) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Feedback / animations
+   -------------------------------------------------------------------------- */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform: none;
+    }
+}
+
+
+[data-testid="stAlert"] {
+    border-radius: 12px;
+
+    animation:
+        fadeInUp
+        0.25s
+        ease;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+
+        animation: none !important;
+
+        transform: none !important;
+    }
+}
+
+/* ==========================================================================
+   Invoice Registry — final visual
+   ========================================================================== */
+
+
+/* Table wrapper */
+
+.st-key-registry_panel .if-table-wrap {
+    width: 100%;
+    margin-top: 0.15rem;
+    overflow-x: auto;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+}
+
+
+/* Table */
+
+.st-key-registry_panel .if-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    border: 0;
+
+    background: transparent;
+
+    font-size: 0.78rem;
+}
+
+
+/* Header */
+
+.st-key-registry_panel .if-table th {
+    padding:
+        0.48rem
+        0.65rem;
+
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: transparent !important;
+    color: var(--faint);
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+
+/* Rows */
+
+.st-key-registry_panel .if-table td {
+    padding:
+        0.62rem
+        0.65rem;
+
+    border: 0;
+    border-bottom:
+        1px solid
+        rgba(28, 38, 56, 0.72);
+
+    background: transparent;
+
+    color: var(--muted);
+
+    white-space: nowrap;
+}
+
+
+.st-key-registry_panel .if-table tbody tr {
+    background: transparent;
+
+    transition:
+        background-color
+        150ms ease;
+}
+
+
+.st-key-registry_panel .if-table tbody tr:hover {
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.025
+        );
+}
+
+.st-key-registry_panel .if-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
+/* ID */
+
+.st-key-registry_panel .if-table .id {
+    color: var(--faint);
+
+    font-family: var(--font-mono);
+
+    font-size: 0.72rem;
+}
+
+
+/* Supplier */
+
+.st-key-registry_panel .if-table .sup {
+    color: var(--ink);
+
+    font-weight: 600;
+}
+
+
+/* VAT, invoice number, date and currency */
+
+.st-key-registry_panel .if-table .mono {
+    color: var(--muted);
+
+    font-family: var(--font-mono);
+
+    font-size: 0.73rem;
+}
+
+
+.st-key-registry_panel .if-table .bright {
+    color: var(--ink);
+
+    font-weight: 500;
+}
+
+
+/* Amount */
+
+.st-key-registry_panel .if-table .num {
+    text-align: right;
+
+    color: var(--ink);
+
+    font-family: var(--font-mono);
+
+    font-weight: 600;
+
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* --------------------------------------------------------------------------
+   Status badges
+   -------------------------------------------------------------------------- */
+
+.st-key-registry_panel .badge {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 0.38rem;
+
+    padding:
+        0.15rem
+        0.55rem;
+
+    border: 1px solid;
+
+    border-radius: 999px;
+
+    font-size: 0.69rem;
+    font-weight: 600;
+
+    line-height: 1.25;
+
+    white-space: nowrap;
+}
+
+
+/* Status dot */
+
+.st-key-registry_panel .badge::before {
+    content: "";
+
+    width: 6px;
+    height: 6px;
+
+    flex: 0 0 6px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+}
+
+
+/* Approved */
+
+.st-key-registry_panel .badge-green {
+    color: var(--ok);
+
+    background:
+        rgba(
+            52,
+            211,
+            153,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            52,
+            211,
+            153,
+            0.28
+        );
+}
+
+
+/* Needs Review */
+
+.st-key-registry_panel .badge-amber {
+    color: var(--warn);
+
+    background:
+        rgba(
+            251,
+            191,
+            36,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            251,
+            191,
+            36,
+            0.28
+        );
+}
+
+
+/* Rejected */
+
+.st-key-registry_panel .badge-red {
+    color: var(--bad);
+
+    background:
+        rgba(
+            248,
+            113,
+            113,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            248,
+            113,
+            113,
+            0.28
+        );
+}
+
+
+/* Unknown */
+
+.st-key-registry_panel .badge-gray {
+    color: var(--muted);
+
+    background: var(--panel-2);
+
+    border-color: var(--line-strong);
+}
