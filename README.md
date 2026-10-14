@@ -153,7 +153,13 @@ External services are mocked during automated tests so tests do not call Groq, M
 ```text
 invoiceflow-ai/
 │
+├── .streamlit/
+│       └── config.toml
+│
 ├── api/
+│   ├── core/
+│   │   └── errors.py
+│   │
 │   ├── icon/
 │   │   └── favicon.png
 │   │
@@ -161,10 +167,17 @@ invoiceflow-ai/
 │   │   ├── invoice_status.py
 │   │   └── invoice.py
 │   │
+│   ├── routes/
+│   │   ├── dashboard.py
+│   │   ├── general.py
+│   │   ├── invoices.py
+│   │   └── processing.py
+│   │
 │   ├── services/
 │   │   ├── ai_service.py
 │   │   ├── audit_service.py
 │   │   ├── database_service.py
+│   │   ├── invoice_processing_service.py
 │   │   ├── invoice_validation_service.py
 │   │   ├── make_service.py
 │   │   ├── pdf_service.py
@@ -174,21 +187,60 @@ invoiceflow-ai/
 │   └── main.py
 │
 ├── dashboard/
-│   ├── icon/
-│   │   └── favicon.png
+│   ├── assets/
+│   │   ├── icon/
+│   │   │   └── favicon.png
+│   │   │
+│   │   └── styles/
+│   │       ├── base.css
+│   │       ├── buttons.css
+│   │       ├── components.css
+│   │       ├── dashboard.css
+│   │       ├── feedback.css
+│   │       ├── invoice_review.css
+│   │       ├── process_invoice.css
+│   │       ├── registry.css
+│   │       └── sidebar.css
+│   │
+│   ├── core/
+│   │   ├── api_client.py
+│   │   ├── i18n.py
+│   │   ├── status.py
+│   │   └── ui.py
+│   │
+│   ├── views/
+│   │   ├── dashboard_components/
+│   │   │   ├── invoice_registry.py
+│   │   │   ├── metrics.py
+│   │   │   ├── review_queue.py
+│   │   │   └── supplier_chart.py
+│   │   │
+│   │   ├── invoice_review_components/
+│   │   │   ├── decision_panel.py
+│   │   │   ├── invoice_details.py
+│   │   │   ├── pdf_panel.py
+│   │   │   └── review_header.py
+│   │   │
+│   │   ├── dashboard.py
+│   │   ├── invoice_review.py
+│   │   └── process_invoice.py
+│   │
 │   └── app.py
 │
 ├── docs/
 │   └── screenshots/
+│       ├── dashboard-overview.png
+│       ├── human-review.png
+│       └── invoice-registry.png
 │
 ├── make-workflows/
 │
 ├── sample-invoices/
-│       ├── invoice_sample_001.pdf
-│       ├── invoice_sample_002_valid.pdf
-│       ├── invoice_sample_003_needs_review.pdf
-│       ├── invoice_sample_004_duplicate_number.pdf
-│       └── invoice_sample_005_make_webhook.pdf
+│   ├── invoice_sample_001.pdf
+│   ├── invoice_sample_002_valid.pdf
+│   ├── invoice_sample_003_needs_review.pdf
+│   ├── invoice_sample_004_duplicate_number.pdf
+│   └── invoice_sample_005_make_webhook.pdf
 │
 ├── tests/
 │   ├── test_duplicates.py
@@ -199,8 +251,8 @@ invoiceflow-ai/
 ├── .env.example
 ├── .gitignore
 ├── README.md
-├── requirements.txt
-└── requirements-dev.txt
+├── requirements-dev.txt
+└── requirements.txt
 ```
 
 ---
