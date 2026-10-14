@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 import streamlit as st
+import re
 
 from core.i18n import t
 from core.ui import (
@@ -21,6 +22,27 @@ VALIDATION_KEYS = (
     "validation_error",
     "validation_issues",
 )
+
+def translate_validation_issue(
+    issue: str,
+) -> str:
+    """Translate known backend validation messages."""
+
+    total_mismatch = re.fullmatch(
+        r"Total mismatch: expected ([\d.]+) but received ([\d.]+)\.",
+        issue.strip(),
+    )
+
+    if total_mismatch:
+        expected, received = total_mismatch.groups()
+
+        return t(
+            "validation.total_mismatch",
+            expected=expected,
+            received=received,
+        )
+
+    return issue
 
 
 def validation_issues(
@@ -67,7 +89,9 @@ def validation_issues(
         )
 
     return [
-        str(item)
+        translate_validation_issue(
+            str(item)
+        )
         for item in issues
     ]
 

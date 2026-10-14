@@ -1,0 +1,307 @@
+/* ==========================================================================
+   InvoiceFlow AI
+   Invoice Registry
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   Table wrapper
+   -------------------------------------------------------------------------- */
+
+.st-key-registry_panel .if-table-wrap {
+    width: 100%;
+
+    margin-top: 0.15rem;
+
+    overflow-x: auto;
+
+    border: 0 !important;
+
+    border-radius: 0 !important;
+
+    background: transparent !important;
+}
+
+
+/* --------------------------------------------------------------------------
+   Table
+   -------------------------------------------------------------------------- */
+
+.st-key-registry_panel .if-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    border: 0;
+
+    background: transparent;
+
+    font-size: 0.78rem;
+}
+
+
+/* --------------------------------------------------------------------------
+   Header
+   -------------------------------------------------------------------------- */
+
+.st-key-registry_panel .if-table th {
+    padding:
+        0.48rem
+        0.65rem;
+
+    border: 0;
+
+    border-bottom:
+        1px solid var(--line);
+
+    background: transparent !important;
+
+    color: var(--faint);
+
+    font-size: 0.64rem;
+
+    font-weight: 600;
+
+    letter-spacing: 0.07em;
+
+    text-align: left;
+
+    text-transform: uppercase;
+
+    white-space: nowrap;
+}
+
+
+/* --------------------------------------------------------------------------
+   Rows
+   -------------------------------------------------------------------------- */
+
+.st-key-registry_panel .if-table td {
+    padding:
+        0.62rem
+        0.65rem;
+
+    border: 0;
+
+    border-bottom:
+        1px solid
+        rgba(28, 38, 56, 0.72);
+
+    background: transparent;
+
+    color: var(--muted);
+
+    white-space: nowrap;
+}
+
+
+.st-key-registry_panel .if-table tbody tr {
+    background: transparent;
+
+    transition:
+        background-color
+        150ms ease;
+}
+
+
+.st-key-registry_panel .if-table tbody tr:hover {
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.025
+        );
+}
+
+
+.st-key-registry_panel .if-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+
+/* --------------------------------------------------------------------------
+   ID
+   -------------------------------------------------------------------------- */
+
+.st-key-registry_panel .if-table .id {
+    color: var(--faint);
+
+    font-family: var(--font-mono);
+
+    font-size: 0.72rem;
+}
+
+
+/* --------------------------------------------------------------------------
+   Supplier
+   -------------------------------------------------------------------------- */
+
+.st-key-registry_panel .if-table .sup {
+    color: var(--ink);
+
+    font-weight: 600;
+}
+
+
+/* --------------------------------------------------------------------------
+   VAT, invoice number, date and currency
+   -------------------------------------------------------------------------- */
+
+.st-key-registry_panel .if-table .mono {
+    color: var(--muted);
+
+    font-family: var(--font-mono);
+
+    font-size: 0.73rem;
+}
+
+
+.st-key-registry_panel .if-table .bright {
+    color: var(--ink);
+
+    font-weight: 500;
+}
+
+
+/* --------------------------------------------------------------------------
+   Amount
+   -------------------------------------------------------------------------- */
+
+.st-key-registry_panel .if-table .num {
+    text-align: right;
+
+    color: var(--ink);
+
+    font-family: var(--font-mono);
+
+    font-weight: 600;
+
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* --------------------------------------------------------------------------
+   Registry status badges
+   -------------------------------------------------------------------------- */
+
+.st-key-registry_panel .badge {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 0.38rem;
+
+    padding:
+        0.15rem
+        0.55rem;
+
+    border: 1px solid;
+
+    border-radius: 999px;
+
+    font-size: 0.69rem;
+
+    font-weight: 600;
+
+    line-height: 1.25;
+
+    white-space: nowrap;
+}
+
+
+/* Status dot */
+
+.st-key-registry_panel .badge::before {
+    content: "";
+
+    width: 6px;
+
+    height: 6px;
+
+    flex: 0 0 6px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+}
+
+
+/* Approved */
+
+.st-key-registry_panel .badge-green {
+    color: var(--ok);
+
+    background:
+        rgba(
+            52,
+            211,
+            153,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            52,
+            211,
+            153,
+            0.28
+        );
+}
+
+
+/* Needs Review */
+
+.st-key-registry_panel .badge-amber {
+    color: var(--warn);
+
+    background:
+        rgba(
+            251,
+            191,
+            36,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            251,
+            191,
+            36,
+            0.28
+        );
+}
+
+
+/* Rejected */
+
+.st-key-registry_panel .badge-red {
+    color: var(--bad);
+
+    background:
+        rgba(
+            248,
+            113,
+            113,
+            0.10
+        );
+
+    border-color:
+        rgba(
+            248,
+            113,
+            113,
+            0.28
+        );
+}
+
+
+/* Unknown */
+
+.st-key-registry_panel .badge-gray {
+    color: var(--muted);
+
+    background: var(--panel-2);
+
+    border-color: var(--line-strong);
+}

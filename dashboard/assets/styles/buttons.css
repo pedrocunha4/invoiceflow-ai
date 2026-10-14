@@ -1,0 +1,148 @@
+/* ==========================================================================
+   InvoiceFlow AI
+   Buttons
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   Global button layout
+   -------------------------------------------------------------------------- */
+
+.stElementContainer:has(.stButton),
+.element-container:has(.stButton),
+[data-testid="stElementContainer"]:has(
+    [data-testid="stButton"]
+) {
+    width: 100% !important;
+}
+
+
+.stButton,
+[data-testid="stButton"] {
+    width: 100% !important;
+}
+
+
+.stButton > button,
+[data-testid="stLinkButton"] a {
+    width: 100%;
+
+    min-height: 2.6rem;
+
+    font-weight: 500;
+
+    transition:
+        transform var(--ease),
+        box-shadow var(--ease),
+        border-color var(--ease),
+        background-color var(--ease),
+        color var(--ease);
+}
+
+
+/* --------------------------------------------------------------------------
+   Global button states
+   -------------------------------------------------------------------------- */
+
+.stButton > button:hover:not(:disabled),
+[data-testid="stLinkButton"] a:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 18px
+        rgba(
+            2,
+            8,
+            23,
+            0.45
+        );
+
+    border-color: var(--accent-2);
+}
+
+
+.stButton > button:active:not(:disabled),
+[data-testid="stLinkButton"] a:active {
+    transform: translateY(0);
+
+    box-shadow: none;
+}
+
+
+.stButton > button:disabled {
+    cursor: not-allowed;
+}
+
+
+/* --------------------------------------------------------------------------
+   Process Invoice button
+   -------------------------------------------------------------------------- */
+
+.st-key-btn_process button {
+    min-height: 2.8rem;
+
+    font-weight: 600;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563EB 0%,
+            #0891B2 100%
+        );
+
+    border:
+        1px solid
+        rgba(
+            34,
+            211,
+            238,
+            0.45
+        );
+
+    color: #FFFFFF;
+
+    box-shadow:
+        0 6px 18px
+        rgba(
+            37,
+            99,
+            235,
+            0.35
+        );
+}
+
+
+.st-key-btn_process button:hover:not(:disabled) {
+    background:
+        linear-gradient(
+            135deg,
+            #2F6FF0 0%,
+            #0EA5C6 100%
+        );
+
+    border-color:
+        rgba(
+            34,
+            211,
+            238,
+            0.80
+        );
+
+    box-shadow:
+        0 12px 26px
+        rgba(
+            37,
+            99,
+            235,
+            0.45
+        );
+}
+
+
+.st-key-btn_process button:disabled {
+    opacity: 0.55;
+
+    box-shadow: none;
+
+    color: #CBD5E1;
+}

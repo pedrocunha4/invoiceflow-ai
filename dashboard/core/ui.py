@@ -23,15 +23,27 @@ ASSETS_DIR = (
     / "assets"
 )
 
+STYLES_DIR = (
+    ASSETS_DIR
+    / "styles"
+)
+
 FAVICON_PATH = (
     ASSETS_DIR
     / "icon"
     / "favicon.png"
 )
 
-STYLE_PATH = (
-    ASSETS_DIR
-    / "style.css"
+STYLE_FILES = (
+    "base.css",
+    "components.css",
+    "dashboard.css",
+    "sidebar.css",
+    "process_invoice.css",
+    "buttons.css",
+    "invoice_review.css",
+    "feedback.css",
+    "registry.css",
 )
 
 MAX_UPLOAD_MB = 10
@@ -152,13 +164,29 @@ def css_text(value: str) -> str:
 
 
 def inject_css() -> None:
-    """Load the static dashboard stylesheet."""
+    """Load the static dashboard stylesheets."""
+
+    styles: list[str] = []
+
     try:
-        css = STYLE_PATH.read_text(
-            encoding="utf-8"
-        )
+        for filename in STYLE_FILES:
+            path = (
+                STYLES_DIR
+                / filename
+            )
+
+            styles.append(
+                path.read_text(
+                    encoding="utf-8"
+                )
+            )
+
     except OSError:
         return
+
+    css = "\n\n".join(
+        styles
+    )
 
     st.markdown(
         f"<style>{css}</style>",

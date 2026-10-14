@@ -1,0 +1,160 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+
+/* ==========================================================================
+   InvoiceFlow AI
+   Base styles
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   Design tokens
+   -------------------------------------------------------------------------- */
+
+:root {
+    --accent: #22D3EE;
+    --accent-2: #3B82F6;
+
+    --card: #0F1A2E;
+    --panel-2: #131B2B;
+
+    --line: #1C2A44;
+    --line-strong: #2A3D60;
+
+    --ink: #E8EDF5;
+    --muted: #94A3B8;
+    --faint: #5B6A85;
+
+    --ok: #34D399;
+    --warn: #FBBF24;
+    --bad: #F87171;
+
+    --shadow:
+        0 8px 24px
+        rgba(2, 8, 23, 0.35);
+
+    --shadow-hover:
+        0 14px 30px
+        rgba(2, 8, 23, 0.50);
+
+    --ease: 0.2s ease;
+
+    --font-heading:
+        "Outfit",
+        system-ui,
+        sans-serif;
+
+    --font-ui:
+        "Plus Jakarta Sans",
+        system-ui,
+        sans-serif;
+
+    --font-mono:
+        "Geist Mono",
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Consolas,
+        monospace;
+}
+
+
+/* --------------------------------------------------------------------------
+   Global / Streamlit shell
+   -------------------------------------------------------------------------- */
+
+html {
+    font-size: 106.25% !important;
+}
+
+[data-testid="stHeader"] {
+    background: transparent;
+}
+
+[data-testid="stAppDeployButton"],
+.stDeployButton,
+#MainMenu,
+footer {
+    display: none !important;
+}
+
+.block-container {
+    padding-top: 1.2rem;
+    padding-bottom: 2rem;
+
+    max-width: 1280px;
+}
+
+
+/* --------------------------------------------------------------------------
+   Header / top bar
+   -------------------------------------------------------------------------- */
+
+.st-key-app_header {
+    border-bottom: 1px solid var(--line);
+
+    padding-bottom: 0.8rem;
+
+    margin-bottom: 0.6rem;
+}
+
+.st-key-app_header h1 {
+    font-size: 1.25rem !important;
+
+    font-weight: 650 !important;
+
+    letter-spacing: -0.01em;
+
+    padding:
+        0
+        0
+        0.1rem
+        0 !important;
+}
+
+.st-key-lang {
+    margin-top: 1rem;
+}
+
+.st-key-lang button {
+    font-size: 0.78rem;
+
+    min-height: 2rem;
+
+    padding:
+        0.15rem
+        0.5rem;
+}
+
+
+/* --------------------------------------------------------------------------
+   Typography
+   -------------------------------------------------------------------------- */
+
+[data-testid="stMain"] h3 {
+    font-size: 1.6rem !important;
+
+    font-weight: 650 !important;
+
+    letter-spacing: -0.015em;
+
+    margin-top: 0;
+
+    padding:
+        0
+        0
+        0.1rem
+        0 !important;
+}
+
+[data-testid="stCaptionContainer"],
+[data-testid="stCaptionContainer"] p {
+    color: var(--muted) !important;
+}
+
+[data-testid="stCaptionContainer"] {
+    margin-bottom: 0;
+}
+
+hr {
+    margin: 1rem 0 !important;
+}

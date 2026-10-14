@@ -1,0 +1,263 @@
+/* ==========================================================================
+   InvoiceFlow AI
+   Sidebar
+   ========================================================================== */
+
+
+/* --------------------------------------------------------------------------
+   Sidebar shell
+   -------------------------------------------------------------------------- */
+
+[data-testid="stSidebar"][aria-expanded="true"] {
+    width: 262px !important;
+
+    min-width: 262px !important;
+}
+
+
+[data-testid="stSidebar"] {
+    background:
+        linear-gradient(
+            180deg,
+            #0A1222 0%,
+            #08101D 100%
+        );
+
+    border-right:
+        1px solid #16233B;
+}
+
+
+/* --------------------------------------------------------------------------
+   Brand
+   -------------------------------------------------------------------------- */
+
+.brand {
+    display: flex;
+
+    align-items: center;
+
+    gap: 0.7rem;
+
+    padding:
+        0.1rem
+        0.2rem
+        0.9rem;
+
+    margin-top: -40px;
+
+    margin-bottom: 1.5rem;
+}
+
+
+.brand img {
+    width: 36px;
+
+    height: 36px;
+
+    border-radius: 9px;
+}
+
+
+.brand-name {
+    font-weight: 700;
+
+    font-size: 1.05rem;
+
+    color: #F8FAFC;
+
+    line-height: 1.15;
+}
+
+
+.brand-name span {
+    color: var(--accent);
+}
+
+
+.brand-sub {
+    font-size: 0.72rem;
+
+    color: var(--muted);
+}
+
+
+/* --------------------------------------------------------------------------
+   Navigation
+   -------------------------------------------------------------------------- */
+
+[data-testid="stSidebar"]
+[data-testid="stRadioGroup"] {
+    gap: 0.25rem;
+
+    align-items: stretch !important;
+}
+
+
+[data-testid="stSidebar"]
+[data-testid="stRadioGroup"] > div {
+    width: 100%;
+}
+
+
+[data-testid="stSidebar"]
+[data-testid="stRadioOption"]
+> div
+> div:first-child:not(
+    [data-testid="stMarkdownContainer"]
+) {
+    display: none !important;
+}
+
+
+[data-testid="stSidebar"]
+[data-testid="stRadio"]
+label {
+    padding:
+        0.65rem
+        0.85rem;
+
+    border-radius: 10px;
+
+    width: 100%;
+
+    cursor: pointer;
+
+    border:
+        1px solid transparent;
+
+    transition:
+        background-color var(--ease),
+        border-color var(--ease),
+        color var(--ease);
+}
+
+
+[data-testid="stSidebar"]
+[data-testid="stRadio"]
+label p {
+    font-size: 0.98rem;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 0.55rem;
+}
+
+
+[data-testid="stSidebar"]
+[data-testid="stRadio"]
+label:hover {
+    background-color: #0F1B31;
+}
+
+
+[data-testid="stSidebar"]
+[data-testid="stRadio"]
+label:has(input:checked) {
+    background:
+        linear-gradient(
+            90deg,
+            rgba(34, 211, 238, 0.14),
+            rgba(59, 130, 246, 0.10)
+        );
+
+    border-color:
+        rgba(
+            34,
+            211,
+            238,
+            0.35
+        );
+}
+
+
+[data-testid="stSidebar"]
+[data-testid="stRadio"]
+label:has(input:checked) p {
+    color: var(--accent);
+}
+
+
+/* --------------------------------------------------------------------------
+   API status
+   -------------------------------------------------------------------------- */
+
+.st-key-sidebar_status {
+    position: fixed;
+
+    bottom: 2rem;
+
+    left: 1rem;
+
+    width: 230px;
+}
+
+
+.api-card {
+    display: flex;
+
+    align-items: center;
+
+    gap: 0.6rem;
+
+    padding:
+        0.7rem
+        0.85rem;
+
+    border:
+        1px solid var(--line);
+
+    border-radius: 12px;
+
+    background:
+        rgba(
+            15,
+            26,
+            46,
+            0.70
+        );
+
+    font-size: 0.88rem;
+
+    font-weight: 600;
+
+    color: #E2E8F0;
+}
+
+
+.api-dot {
+    width: 8px;
+
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: var(--ok);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(
+            52,
+            211,
+            153,
+            0.18
+        );
+
+    flex: none;
+}
+
+
+.api-card-off .api-dot {
+    background: var(--bad);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(
+            248,
+            113,
+            113,
+            0.18
+        );
+}
