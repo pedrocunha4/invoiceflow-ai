@@ -23,10 +23,13 @@ InvoiceFlow AI currently supports:
 - Human review workflow
 - Integration with Make automation scenarios
 - Audit logging
-- Secure temporary PDF access
+- Dashboard-to-API authentication with `X-API-Key`
+- Secure temporary PDF access with short-lived tokens
 - Bilingual dashboard (English / Portuguese)
 - Service failure handling
 - Automated tests with pytest
+- Code quality checks with Ruff
+- Continuous integration with GitHub Actions
 
 ---
 
@@ -146,6 +149,15 @@ The dashboard provides invoice monitoring, filtering and human review functional
 
 External services are mocked during automated tests so tests do not call Groq, Make or Supabase.
 
+### Code Quality and CI
+
+- Ruff
+- GitHub Actions
+
+Ruff is used for static code quality checks and import validation.
+
+GitHub Actions automatically runs linting and the test suite on pushes and pull requests to `main`.
+
 ---
 
 ## Project Structure
@@ -162,7 +174,9 @@ invoiceflow-ai/
 │
 ├── api/
 │   ├── core/
-│   │   └── errors.py
+│   │   ├── auth.py
+│   │   ├── errors.py
+│   │   └── pdf_access.py
 │   │
 │   ├── icon/
 │   │   └── favicon.png
@@ -238,6 +252,8 @@ invoiceflow-ai/
 │       └── process-review.png
 │
 ├── make-workflows/
+│   ├── invoiceflow-workflow.png
+│   └── README.md
 │
 ├── sample-invoices/
 │   ├── invoice_sample_001.pdf
@@ -247,6 +263,7 @@ invoiceflow-ai/
 │   └── invoice_sample_005_make_webhook.pdf
 │
 ├── tests/
+│   ├── conftest.py
 │   ├── test_duplicates.py
 │   ├── test_invoice_model.py
 │   ├── test_invoice_validation.py
@@ -321,12 +338,14 @@ The system prevents the same invoice from being processed multiple times using t
 
 Every uploaded PDF receives a SHA-256 hash.
 
-```text
-PDF
- ↓
-SHA-256
- ↓
-Unique file fingerprint
+```mermaid
+flowchart TD
+    A[PDF Invoice] --> B[Generate SHA-256 Hash]
+    B --> C[Unique File Fingerprint]
+    C --> D{Hash Already Exists?}
+
+    D -- Yes --> E[Duplicate Detected]
+    D -- No --> F[Continue Processing]
 ```
 
 If the same PDF is uploaded again, the API returns a duplicate response.
@@ -359,7 +378,61 @@ invoice-documents/
 
 Documents are not publicly accessible.
 
-The API can either generate a temporary signed URL or securely retrieve the PDF from the private bucket.
+PDFs are retrieved through the FastAPI backend instead of exposing Supabase Storage URLs directly to the browser.
+
+When a user opens an original invoice from the dashboard, the authenticated API generates a short-lived application token. The browser exchanges this token for a temporary HttpOnly cookie and is redirected to a clean PDF URL.
+
+This allows the PDF to remain protected while avoiding exposure of the internal API key or Supabase Storage URLs.
+
+---
+
+## Security
+
+InvoiceFlow AI includes service-to-service authentication between the Streamlit dashboard and the FastAPI backend.
+
+### Dashboard-to-API authentication
+
+Protected API endpoints require the following HTTP header:
+
+```text
+X-API-Key
+```
+
+The Streamlit dashboard automatically includes this key when communicating with the API.
+
+Requests to protected endpoints without a valid key return:
+
+```text
+401 Unauthorized
+```
+
+General health endpoints remain publicly accessible so the application can expose basic availability information without revealing invoice data.
+
+### Secure PDF access
+
+Opening a PDF directly from a browser requires a different mechanism because browser links cannot attach the private `X-API-Key` header.
+
+InvoiceFlow AI therefore uses short-lived HMAC-signed access tokens.
+
+```mermaid
+flowchart TD
+    A[Streamlit Dashboard] --> B[Authenticated /pdf-url Request]
+    B --> C[Generate Short-Lived PDF Token]
+    C --> D[/pdf-open]
+    D --> E{Token Valid?}
+
+    E -- No --> X[401 Unauthorized]
+    E -- Yes --> F[Create Temporary HttpOnly Cookie]
+
+    F --> G[303 Redirect]
+    G --> H[/pdf-view]
+    H --> I[Retrieve PDF from Private Storage]
+    I --> J[Display Original PDF]
+```
+
+The temporary token expires after five minutes.
+
+The API key is never placed in the browser URL, and Supabase Storage URLs are not exposed to the user.
 
 ---
 
@@ -447,14 +520,15 @@ Supabase Storage operations use the same controlled error-handling approach.
 
 If the PDF is successfully uploaded but the database insert subsequently fails, the API performs a compensating action:
 
-```text
-PDF uploaded
-     ↓
-Database insert fails
-     ↓
-Delete uploaded PDF
-     ↓
-Avoid orphan document
+```mermaid
+flowchart TD
+    A[Upload PDF to Supabase Storage] --> B[Insert Invoice in PostgreSQL]
+    B --> C{Database Insert Successful?}
+
+    C -- Yes --> D[Continue Workflow]
+    C -- No --> E[Delete Uploaded PDF]
+
+    E --> F[Avoid Orphan Document]
 ```
 
 This keeps Storage and Database state consistent.
@@ -589,7 +663,20 @@ SUPABASE_URL=
 SUPABASE_SECRET_KEY=
 MAKE_WEBHOOK_URL=
 MAKE_WEBHOOK_API_KEY=
+
 INVOICEFLOW_API_URL=http://127.0.0.1:8000
+INVOICEFLOW_API_KEY=
+INVOICEFLOW_PDF_TOKEN_SECRET=
+```
+
+`INVOICEFLOW_API_KEY` authenticates communication between the Streamlit dashboard and FastAPI.
+
+`INVOICEFLOW_PDF_TOKEN_SECRET` is used to cryptographically sign temporary PDF access tokens.
+
+Strong random values can be generated with:
+
+```bash
+python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
 
 Real credentials must never be stored in Git.
@@ -641,6 +728,24 @@ Audit logging
 
 This makes the system easier to test, maintain and extend.
 
+### Why API key authentication?
+
+The Streamlit dashboard acts as a trusted client of the FastAPI backend.
+
+A shared API key provides a lightweight authentication boundary between both components without introducing a complete user authentication system that is outside the scope of this portfolio project.
+
+Sensitive invoice and processing endpoints therefore require an `X-API-Key` header.
+
+### Why short-lived PDF access tokens?
+
+A browser opened through a normal link cannot include the private `X-API-Key` header.
+
+For this reason, authenticated dashboard requests can generate a short-lived HMAC-signed token specifically for PDF access.
+
+The token is validated by the API, exchanged for a temporary HttpOnly cookie and removed from the visible URL through a redirect.
+
+This keeps the API key private and prevents direct exposure of Supabase Storage URLs.
+
 ### Why compensating actions?
 
 Storage and PostgreSQL are separate systems and therefore do not share a database transaction.
@@ -655,7 +760,7 @@ InvoiceFlow AI is currently a portfolio-oriented implementation and not a produc
 
 Current limitations include:
 
-- no application authentication or user accounts;
+- no end-user authentication or user accounts;
 - no role-based access control;
 - no OCR pipeline for image-only scanned invoices;
 - AI extraction may require human review for ambiguous documents;
@@ -664,7 +769,7 @@ Current limitations include:
 - business validation currently focuses on a limited set of invoice rules;
 - deployment and production monitoring are outside the current local development scope.
 
-Possible future improvements include authentication, OCR support, additional validation rules, persistent retry mechanisms, CI/CD and cloud deployment.
+Possible future improvements include end-user authentication, role-based access control, OCR support, additional validation rules, persistent retry mechanisms, cloud deployment and production monitoring.
 
 ---
 
@@ -692,6 +797,7 @@ This project was created to demonstrate practical knowledge in:
 Process Automation
 Systems Integration
 REST APIs
+API Security
 Artificial Intelligence
 Data Validation
 PostgreSQL
@@ -699,6 +805,7 @@ Document Storage
 Workflow Automation
 Error Handling
 Software Testing
+Continuous Integration
 ```
 
 ---

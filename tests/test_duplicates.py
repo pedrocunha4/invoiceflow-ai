@@ -5,7 +5,12 @@ from fastapi.testclient import TestClient
 from api.main import app
 from api.models.invoice import InvoiceData
 
-client = TestClient(app)
+client = TestClient(
+    app,
+    headers={
+        "X-API-Key": "test-api-key",
+    },
+)
 
 
 def test_duplicate_invoice_by_file_hash(

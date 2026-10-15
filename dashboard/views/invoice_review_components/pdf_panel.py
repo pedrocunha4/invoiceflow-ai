@@ -6,8 +6,8 @@ from typing import Any, Dict
 
 import streamlit as st
 from core.api_client import (
-    API_BASE_URL,
     fetch_invoice_pdf,
+    fetch_invoice_pdf_url,
 )
 from core.i18n import t
 from core.ui import (
@@ -47,10 +47,17 @@ def render_pdf_action(
 
         return
 
-    pdf_url = (
-        f"{API_BASE_URL}"
-        f"/invoices/{invoice_id}/pdf"
-    )
+    pdf_url = fetch_invoice_pdf_url(invoice_id)
+
+    if not pdf_url:
+        st.button(
+            t("review.view_pdf"),
+            disabled=True,
+            key=f"pdf_url_unavailable_{invoice_id}",
+            width="stretch",
+        )
+        st.caption(t("review.pdf_unavailable"))
+        return
 
     st.link_button(
         t("review.view_pdf"),

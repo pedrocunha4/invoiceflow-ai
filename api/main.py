@@ -6,7 +6,12 @@ from fastapi.staticfiles import StaticFiles
 
 from api.routes.dashboard import router as dashboard_router
 from api.routes.general import router as general_router
-from api.routes.invoices import router as invoices_router
+from api.routes.invoices import (
+    pdf_view_router,
+)
+from api.routes.invoices import (
+    router as invoices_router,
+)
 from api.routes.processing import router as processing_router
 
 app = FastAPI(
@@ -51,4 +56,5 @@ def custom_swagger_ui():
 app.include_router(general_router)
 app.include_router(dashboard_router)
 app.include_router(invoices_router)
+app.include_router(pdf_view_router)
 app.include_router(processing_router)

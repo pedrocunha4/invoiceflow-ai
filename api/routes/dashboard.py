@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from api.core.auth import require_api_key
 from api.core.errors import database_http_exception
 from api.services.database_service import (
     DatabaseServiceError,
@@ -14,7 +15,7 @@ from api.services.supabase_client import (
 router = APIRouter()
 
 
-@router.get("/dashboard/stats")
+@router.get("/dashboard/stats", dependencies=[Depends(require_api_key),],)
 def dashboard_stats():
     try:
         return get_invoice_stats()

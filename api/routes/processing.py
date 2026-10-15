@@ -4,17 +4,23 @@ import hashlib
 
 from fastapi import (
     APIRouter,
+    Depends,
     File,
     HTTPException,
     UploadFile,
 )
 
+from api.core.auth import require_api_key
 from api.services.invoice_processing_service import (
     process_invoice_document,
 )
 from api.services.pdf_service import extract_text_from_pdf
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[
+        Depends(require_api_key),
+    ],
+)
 
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 

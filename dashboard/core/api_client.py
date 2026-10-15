@@ -5,13 +5,32 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 import streamlit as st
+from dotenv import load_dotenv
 
 from .i18n import t
+
+load_dotenv()
 
 API_BASE_URL = os.getenv(
     "INVOICEFLOW_API_URL",
     "http://127.0.0.1:8000",
 )
+
+API_KEY = os.getenv(
+    "INVOICEFLOW_API_KEY",
+    "",
+)
+
+
+def api_headers() -> dict[str, str]:
+    """Headers used for authenticated API requests."""
+
+    if not API_KEY:
+        return {}
+
+    return {
+        "X-API-Key": API_KEY,
+    }
 
 MAX_PDF_EMBED_BYTES = 6 * 1024 * 1024
 
@@ -30,6 +49,7 @@ def api_get(
     try:
         response = requests.get(
             f"{API_BASE_URL}{path}",
+            headers=api_headers(),
             timeout=timeout,
         )
 
@@ -54,6 +74,7 @@ def check_api_health() -> bool:
     try:
         response = requests.get(
             f"{API_BASE_URL}/health",
+            headers=api_headers(),
             timeout=3,
         )
         return response.status_code == 200
@@ -113,6 +134,7 @@ def fetch_invoice(
 def _download_pdf(invoice_id: Any) -> bytes:
     response = requests.get(
         f"{API_BASE_URL}/invoices/{invoice_id}/pdf",
+        headers=api_headers(),
         timeout=15,
     )
 
@@ -126,6 +148,21 @@ def _download_pdf(invoice_id: Any) -> bytes:
         )
 
     return content
+
+
+def fetch_invoice_pdf_url(invoice_id: Any) -> Optional[str]:
+    """Return a temporary signed URL for the original invoice PDF."""
+
+    data, error = api_get(
+        f"/invoices/{invoice_id}/pdf-url"
+    )
+
+    if error or not isinstance(data, dict):
+        return None
+
+    url = data.get("url")
+
+    return url if isinstance(url, str) and url else None
 
 
 def fetch_invoice_pdf(
@@ -162,6 +199,7 @@ def process_invoice(
     try:
         response = requests.post(
             f"{API_BASE_URL}/invoices/extract",
+            headers=api_headers(),
             files=files,
             timeout=60,
         )
@@ -251,9 +289,8 @@ def update_invoice_status(
     try:
         response = requests.patch(
             f"{API_BASE_URL}/invoices/{invoice_id}/status",
-            json={
-                "status": new_status,
-            },
+            headers=api_headers(),
+            json={"status": new_status},
             timeout=10,
         )
 

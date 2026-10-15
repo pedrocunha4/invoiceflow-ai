@@ -23,7 +23,12 @@ from api.services.supabase_client import (
     SupabaseConfigurationError,
 )
 
-client = TestClient(app)
+client = TestClient(
+    app,
+    headers={
+        "X-API-Key": "test-api-key",
+    },
+)
 
 
 # ---------------------------------------------------------
