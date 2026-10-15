@@ -271,6 +271,7 @@ invoiceflow-ai/
 │
 ├── .env.example
 ├── .gitignore
+├── .python-version
 ├── pyproject.toml
 ├── README.md
 ├── requirements-dev.txt
