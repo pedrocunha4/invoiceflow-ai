@@ -230,8 +230,8 @@ invoiceflow-ai/
 ├── docs/
 │   └── screenshots/
 │       ├── dashboard-overview.png
-│       ├── human-review.png
-│       └── invoice-registry.png
+│       ├── process-invoice.png
+│       └── process-review.png
 │
 ├── make-workflows/
 │
@@ -668,13 +668,13 @@ Possible future improvements include authentication, OCR support, additional val
 
 ![InvoiceFlow AI Dashboard](docs/screenshots/dashboard-overview.png)
 
-### Invoice Registry
+### Process Invoice
 
-![Invoice Registry](docs/screenshots/invoice-registry.png)
+![Process Invoice](docs/screenshots/process-invoice.png)
 
-### Human Review
+### Invoice Review
 
-![Human Review](docs/screenshots/human-review.png)
+![Invoice Review](docs/screenshots/process-review.png)
 
 ---
 
