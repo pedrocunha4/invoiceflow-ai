@@ -36,6 +36,17 @@ The image below shows the Make scenario used by InvoiceFlow AI.
 
 ![InvoiceFlow AI Make Workflow](invoiceflow-workflow.png)
 
+
+---
+
+## Automation Result
+
+The screenshot below shows an example of invoice data automatically written to Google Sheets after being routed by the Make scenario.
+
+![Make Google Sheets Result](google-sheets-result.png)
+
+This demonstrates that the automation flow is not limited to webhook reception and routing: invoice data is also delivered to an external system after processing.
+
 ---
 
 ## Workflow Routing
@@ -191,8 +202,9 @@ The original Make blueprint is intentionally not published because exported scen
 
 ```text
 make-workflows/
-├── README.md
-└── invoiceflow-workflow.png
+├── google-sheets-result.png
+├── invoiceflow-workflow.png
+└── README.md
 ```
 
 ### `invoiceflow-workflow.png`
@@ -207,6 +219,19 @@ It demonstrates:
 - Google Sheets integration;
 - Gmail integration;
 - workflow automation outside the core API.
+
+---
+
+### `google-sheets-result.png`
+
+Example of invoice data written to Google Sheets through the Make automation scenario.
+
+It demonstrates:
+
+- successful webhook processing;
+- invoice status routing;
+- external system integration;
+- automated data delivery after invoice processing.
 
 ---
 
