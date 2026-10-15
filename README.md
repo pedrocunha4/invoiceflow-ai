@@ -153,8 +153,12 @@ External services are mocked during automated tests so tests do not call Groq, M
 ```text
 invoiceflow-ai/
 │
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+│
 ├── .streamlit/
-│       └── config.toml
+│   └── config.toml
 │
 ├── api/
 │   ├── core/
@@ -250,6 +254,7 @@ invoiceflow-ai/
 │
 ├── .env.example
 ├── .gitignore
+├── pyproject.toml
 ├── README.md
 ├── requirements-dev.txt
 └── requirements.txt
