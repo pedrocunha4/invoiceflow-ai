@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import os
+import secrets
+
 import streamlit as st
 from core.api_client import check_api_health
 from core.i18n import (
@@ -149,6 +152,55 @@ def render_sidebar(
 # Entry point
 # ---------------------------------------------------------------------------
 
+def require_demo_access() -> bool:
+    """Protect the public portfolio demo with an access password."""
+
+    expected_password = os.getenv(
+        "INVOICEFLOW_DEMO_PASSWORD",
+        "",
+    )
+
+    # No password configured -> local development
+    if not expected_password:
+        return True
+
+    if st.session_state.get(
+        "demo_authenticated"
+    ):
+        return True
+
+    st.title("InvoiceFlow AI")
+    st.caption(
+        "Private portfolio demonstration"
+    )
+
+    password = st.text_input(
+        "Access code",
+        type="password",
+        key="demo_password",
+    )
+
+    if st.button(
+        "Enter",
+        type="primary",
+    ):
+        if secrets.compare_digest(
+            password,
+            expected_password,
+        ):
+            st.session_state[
+                "demo_authenticated"
+            ] = True
+
+            st.rerun()
+
+        else:
+            st.error(
+                "Invalid access code."
+            )
+
+    return False
+
 def main() -> None:
     st.set_page_config(
         page_title="InvoiceFlow AI",
@@ -157,6 +209,9 @@ def main() -> None:
     )
 
     inject_css()
+
+    if not require_demo_access():
+        return
 
     api_online = check_api_health()
 

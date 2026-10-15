@@ -14,7 +14,10 @@ from api.core.auth import require_api_key
 from api.services.invoice_processing_service import (
     process_invoice_document,
 )
-from api.services.pdf_service import extract_text_from_pdf
+from api.services.pdf_service import (
+    PdfLimitError,
+    extract_text_from_pdf,
+)
 
 router = APIRouter(
     dependencies=[
@@ -43,6 +46,12 @@ async def extract_invoice(
             detail="The uploaded file is empty.",
         )
 
+    if not content.startswith(b"%PDF-"):
+        raise HTTPException(
+            status_code=400,
+            detail="The uploaded file is not a valid PDF.",
+        )
+
     if len(content) > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=413,
@@ -56,11 +65,18 @@ async def extract_invoice(
         or "invoice.pdf"
     )
 
-    return process_invoice_document(
-        content=content,
-        file_name=file_name,
-        content_type=file.content_type,
-    )
+    try:
+        return process_invoice_document(
+            content=content,
+            file_name=file_name,
+            content_type=file.content_type,
+        )
+
+    except PdfLimitError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail=str(exc),
+        ) from exc
 
 
 @router.post("/invoices/upload")
@@ -81,6 +97,12 @@ async def upload_invoice(
             detail="The uploaded file is empty.",
         )
 
+    if not content.startswith(b"%PDF-"):
+        raise HTTPException(
+            status_code=400,
+            detail="The uploaded file is not a valid PDF.",
+        )
+
     if len(content) > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=413,
@@ -98,9 +120,16 @@ async def upload_invoice(
         content,
     ).hexdigest()
 
-    extracted_text = extract_text_from_pdf(
-        content,
-    )
+    try:
+        extracted_text = extract_text_from_pdf(
+            content,
+        )
+
+    except PdfLimitError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail=str(exc),
+        ) from exc
 
     return {
         "status": "received",

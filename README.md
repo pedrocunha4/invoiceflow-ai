@@ -25,6 +25,8 @@ InvoiceFlow AI currently supports:
 - Audit logging
 - Dashboard-to-API authentication with `X-API-Key`
 - Secure temporary PDF access with short-lived tokens
+- Password-protected portfolio demo access
+- PDF signature validation and processing limits
 - Bilingual dashboard (English / Portuguese)
 - Service failure handling
 - Automated tests with pytest
@@ -391,6 +393,16 @@ This allows the PDF to remain protected while avoiding exposure of the internal 
 
 InvoiceFlow AI includes service-to-service authentication between the Streamlit dashboard and the FastAPI backend.
 
+### Portfolio demo access
+
+The Streamlit interface can be protected with an optional demo access password.
+
+When `INVOICEFLOW_DEMO_PASSWORD` is configured, visitors must authenticate before the dashboard communicates with the backend API.
+
+The password is stored only as an environment variable and is never committed to the repository.
+
+This lightweight access layer is intended to protect the public portfolio demonstration from unauthorized use of AI processing, database operations and automation workflows.
+
 ### Dashboard-to-API authentication
 
 Protected API endpoints require the following HTTP header:
@@ -409,6 +421,24 @@ Requests to protected endpoints without a valid key return:
 
 General health endpoints remain publicly accessible so the application can expose basic availability information without revealing invoice data.
 
+### PDF upload validation
+
+Uploaded documents are validated before entering the processing pipeline.
+
+The API verifies:
+
+- the declared MIME type;
+- the PDF file signature;
+- the maximum upload size;
+- the maximum number of PDF pages;
+- the maximum amount of extracted text.
+
+Current processing limits are:
+
+```text
+Maximum file size: 10 MB
+Maximum PDF pages: 2
+Maximum extracted text: 10,000 characters
 
 ### Secure PDF access
 
@@ -661,19 +691,24 @@ The project requires the following environment variables:
 
 ```env
 GROQ_API_KEY=
+
 SUPABASE_URL=
 SUPABASE_SECRET_KEY=
+
 MAKE_WEBHOOK_URL=
 MAKE_WEBHOOK_API_KEY=
 
 INVOICEFLOW_API_URL=http://127.0.0.1:8000
 INVOICEFLOW_API_KEY=
 INVOICEFLOW_PDF_TOKEN_SECRET=
+INVOICEFLOW_DEMO_PASSWORD=
 ```
 
 `INVOICEFLOW_API_KEY` authenticates communication between the Streamlit dashboard and FastAPI.
 
 `INVOICEFLOW_PDF_TOKEN_SECRET` is used to cryptographically sign temporary PDF access tokens.
+
+`INVOICEFLOW_DEMO_PASSWORD` optionally protects the Streamlit portfolio demo from unauthorized access. If it is not configured, the dashboard can run without the demo access screen, which is useful for local development.
 
 Strong random values can be generated with:
 
@@ -762,7 +797,7 @@ InvoiceFlow AI is currently a portfolio-oriented implementation and not a produc
 
 Current limitations include:
 
-- no end-user authentication or user accounts;
+- no individual end-user accounts or multi-user authentication;
 - no role-based access control;
 - no OCR pipeline for image-only scanned invoices;
 - AI extraction may require human review for ambiguous documents;

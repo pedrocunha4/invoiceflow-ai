@@ -86,15 +86,18 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "process.drop_hint": "PDF document · Maximum {mb} MB",
         "process.duplicate_default": "Duplicate invoice detected.",
         "process.duplicate_file": "This PDF has already been processed.",
-        "process.duplicate_number": (
-            "An invoice with this supplier and invoice number already exists."
-        ),
+        "process.duplicate_number": ("An invoice with this supplier and invoice number already exists."),
         "process.no_readable_text": "No readable text was found in the PDF.",
         "process.invalid_invoice": (
             "The uploaded PDF does not contain a valid invoice "
             "or the required invoice fields could not be extracted."
         ),
         "process.service_error": ("The invoice could not be processed at the moment. " "Please try again later."),
+        "process.invalid_pdf": "The uploaded file is not a valid PDF.",
+        "process.empty_file": "The uploaded file is empty.",
+        "process.invalid_file": "The uploaded file is not valid.",
+        "process.too_many_pages": ("The PDF exceeds the maximum allowed number of pages."),
+        "process.too_much_text": ("The PDF contains too much text to be processed."),
         # Review
         "review.title": "Invoice Review",
         "review.caption": "Verify the AI-extracted data and record your decision.",
@@ -217,15 +220,18 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "process.drop_hint": "Documento PDF · Máximo {mb} MB",
         "process.duplicate_default": "Fatura duplicada detetada.",
         "process.duplicate_file": "Este PDF já foi processado.",
-        "process.duplicate_number": (
-            "Já existe uma fatura deste fornecedor com o mesmo número."
-        ),
+        "process.duplicate_number": ("Já existe uma fatura deste fornecedor com o mesmo número."),
         "process.no_readable_text": "Não foi encontrado texto legível no PDF.",
         "process.invalid_invoice": (
             "O PDF carregado não contém uma fatura válida "
             "ou não foi possível extrair os campos obrigatórios."
         ),
         "process.service_error": ("Não foi possível processar a fatura neste momento. " "Tente novamente mais tarde."),
+        "process.invalid_pdf": "O ficheiro carregado não é um PDF válido.",
+        "process.empty_file": "O ficheiro carregado está vazio.",
+        "process.invalid_file": "O ficheiro carregado não é válido.",
+        "process.too_many_pages": ("O PDF excede o número máximo de páginas permitido."),
+        "process.too_much_text": ("O PDF contém demasiado texto para ser processado."),
         # Review
         "review.title": "Revisão de faturas",
         "review.caption": "Verifique os dados extraídos pela IA e registe a sua decisão.",

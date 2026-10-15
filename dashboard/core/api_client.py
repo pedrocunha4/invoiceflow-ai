@@ -245,6 +245,35 @@ def process_invoice(
 
         return "duplicate", message
 
+    if response.status_code == 400:
+        body = safe_json(response)
+
+        detail = (
+            body.get("detail")
+            if isinstance(body, dict)
+            else None
+        )
+
+        if detail == "The uploaded file is not a valid PDF.":
+            message = t(
+                "process.invalid_pdf"
+            )
+
+        elif detail == "The uploaded file is empty.":
+            message = t(
+                "process.empty_file"
+            )
+
+        else:
+            message = t(
+                "process.invalid_file"
+            )
+
+        return (
+            "invalid_invoice",
+            message,
+        )
+    
     if response.status_code == 422:
         body = safe_json(response)
 
@@ -257,6 +286,16 @@ def process_invoice(
         if detail == "No readable text was found in the PDF.":
             message = t(
                 "process.no_readable_text"
+            )
+
+        elif detail == "The PDF exceeds the maximum number of pages.":
+            message = t(
+                "process.too_many_pages"
+            )
+
+        elif detail == "The PDF contains too much text.":
+            message = t(
+                "process.too_much_text"
             )
 
         else:
