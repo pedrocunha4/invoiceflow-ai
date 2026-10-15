@@ -408,6 +408,7 @@ Requests to protected endpoints without a valid key return:
 
 General health endpoints remain publicly accessible so the application can expose basic availability information without revealing invoice data.
 
+
 ### Secure PDF access
 
 Opening a PDF directly from a browser requires a different mechanism because browser links cannot attach the private `X-API-Key` header.
@@ -416,18 +417,18 @@ InvoiceFlow AI therefore uses short-lived HMAC-signed access tokens.
 
 ```mermaid
 flowchart TD
-    A[Streamlit Dashboard] --> B[Authenticated /pdf-url Request]
-    B --> C[Generate Short-Lived PDF Token]
-    C --> D[/pdf-open]
-    D --> E{Token Valid?}
+    A["Streamlit Dashboard"] --> B["Authenticated /pdf-url Request"]
+    B --> C["Generate Short-Lived PDF Token"]
+    C --> D["/pdf-open"]
+    D --> E{"Token Valid?"}
 
-    E -- No --> X[401 Unauthorized]
-    E -- Yes --> F[Create Temporary HttpOnly Cookie]
+    E -- "No" --> X["401 Unauthorized"]
+    E -- "Yes" --> F["Create Temporary HttpOnly Cookie"]
 
-    F --> G[303 Redirect]
-    G --> H[/pdf-view]
-    H --> I[Retrieve PDF from Private Storage]
-    I --> J[Display Original PDF]
+    F --> G["303 Redirect"]
+    G --> H["/pdf-view"]
+    H --> I["Retrieve PDF from Private Storage"]
+    I --> J["Display Original PDF"]
 ```
 
 The temporary token expires after five minutes.
