@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any, Dict
 
 import streamlit as st
-
 from core.i18n import t
 from core.ui import (
     esc,
@@ -11,6 +10,7 @@ from core.ui import (
     icon_svg,
     to_float,
 )
+
 
 def kpi_card_html(
     tone: str,

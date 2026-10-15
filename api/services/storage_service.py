@@ -8,7 +8,6 @@ from api.services.supabase_client import (
     get_supabase_client,
 )
 
-
 logger = logging.getLogger(__name__)
 
 STORAGE_BUCKET = "invoice-documents"

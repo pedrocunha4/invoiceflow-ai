@@ -11,7 +11,6 @@ from api.services.supabase_client import (
     SupabaseConfigurationError,
 )
 
-
 router = APIRouter()
 
 

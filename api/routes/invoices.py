@@ -34,7 +34,6 @@ from api.services.supabase_client import (
     SupabaseConfigurationError,
 )
 
-
 router = APIRouter()
 
 SIGNED_URL_EXPIRATION = 300  # 5 minutes

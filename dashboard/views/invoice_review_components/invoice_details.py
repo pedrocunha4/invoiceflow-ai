@@ -1,10 +1,9 @@
 from __future__ import annotations
 
+import re
 from typing import Any, Dict, List, Optional
 
 import streamlit as st
-import re
-
 from core.i18n import t
 from core.ui import (
     card_head_html,

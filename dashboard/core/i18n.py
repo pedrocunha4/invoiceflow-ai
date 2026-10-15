@@ -4,7 +4,6 @@ from typing import Any
 
 import streamlit as st
 
-
 LANGUAGES = ("EN", "PT")
 DEFAULT_LANG = "EN"
 

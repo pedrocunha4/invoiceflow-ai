@@ -23,7 +23,6 @@ from api.services.supabase_client import (
     SupabaseConfigurationError,
 )
 
-
 client = TestClient(app)
 
 

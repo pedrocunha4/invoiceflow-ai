@@ -584,6 +584,7 @@ SUPABASE_URL=
 SUPABASE_SECRET_KEY=
 MAKE_WEBHOOK_URL=
 MAKE_WEBHOOK_API_KEY=
+INVOICEFLOW_API_URL=http://127.0.0.1:8000
 ```
 
 Real credentials must never be stored in Git.

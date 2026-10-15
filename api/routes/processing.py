@@ -14,7 +14,6 @@ from api.services.invoice_processing_service import (
 )
 from api.services.pdf_service import extract_text_from_pdf
 
-
 router = APIRouter()
 
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB

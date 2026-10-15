@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import streamlit as st
-
 from core.api_client import (
     fetch_invoices,
     fetch_stats,
@@ -21,6 +20,7 @@ from .dashboard_components.review_queue import (
 from .dashboard_components.supplier_chart import (
     render_supplier_chart,
 )
+
 
 def render_dashboard() -> None:
     section_header(

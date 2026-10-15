@@ -8,7 +8,6 @@ import streamlit as st
 
 from .i18n import t
 
-
 API_BASE_URL = os.getenv(
     "INVOICEFLOW_API_URL",
     "http://127.0.0.1:8000",

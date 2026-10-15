@@ -5,7 +5,6 @@ from typing import Optional
 from dotenv import load_dotenv
 from supabase import Client, create_client
 
-
 load_dotenv()
 
 logger = logging.getLogger(__name__)

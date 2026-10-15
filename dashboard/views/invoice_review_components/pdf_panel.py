@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Any, Dict
 
 import streamlit as st
-
 from core.api_client import (
     API_BASE_URL,
     fetch_invoice_pdf,

@@ -5,7 +5,6 @@ from fastapi.testclient import TestClient
 from api.main import app
 from api.models.invoice import InvoiceData
 
-
 client = TestClient(app)
 
 

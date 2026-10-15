@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 import streamlit as st
-
 from core.i18n import t
 from core.ui import (
     card_head_html,
@@ -11,7 +10,6 @@ from core.ui import (
     format_money,
     html_block,
 )
-
 
 QUEUE_LIMIT = 5
 CARD_HEIGHT = 440

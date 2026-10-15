@@ -9,7 +9,6 @@ from api.routes.general import router as general_router
 from api.routes.invoices import router as invoices_router
 from api.routes.processing import router as processing_router
 
-
 app = FastAPI(
     title="InvoiceFlow AI API",
     description="API for intelligent invoice processing and automation.",

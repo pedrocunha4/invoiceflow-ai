@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any
 
 import streamlit as st
-
 from core.api_client import update_invoice_status
 from core.i18n import t
 from core.ui import (

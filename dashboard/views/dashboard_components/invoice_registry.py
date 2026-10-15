@@ -4,7 +4,6 @@ from typing import Any, Dict, List
 
 import pandas as pd
 import streamlit as st
-
 from core.i18n import current_lang, t
 from core.status import status_meta
 from core.ui import (

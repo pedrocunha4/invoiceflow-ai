@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any
 
 import streamlit as st
-
 from core.api_client import process_invoice
 from core.i18n import t
 from core.ui import (
@@ -13,6 +12,7 @@ from core.ui import (
     section_header,
     set_flash,
 )
+
 
 def render_processing_result(
     outcome: str,

@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 import streamlit as st
-
 from core.api_client import (
     fetch_invoice,
     fetch_invoices,
@@ -29,6 +28,7 @@ from .invoice_review_components.pdf_panel import (
 from .invoice_review_components.review_header import (
     render_review_header,
 )
+
 
 def select_review_invoice(
     invoice_id: Any,

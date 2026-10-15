@@ -10,7 +10,6 @@ import streamlit as st
 
 from .i18n import t
 
-
 DASHBOARD_DIR = (
     Path(__file__)
     .resolve()

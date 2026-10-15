@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import streamlit as st
-
 from core.api_client import check_api_health
 from core.i18n import (
     DEFAULT_LANG,

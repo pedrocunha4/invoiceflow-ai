@@ -16,7 +16,6 @@ from groq import (
 
 from api.models.invoice import InvoiceData
 
-
 load_dotenv()
 
 logger = logging.getLogger(__name__)

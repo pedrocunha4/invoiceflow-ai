@@ -5,7 +5,6 @@ from typing import Any, Dict
 import requests
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 MAKE_WEBHOOK_URL = os.getenv("MAKE_WEBHOOK_URL")
