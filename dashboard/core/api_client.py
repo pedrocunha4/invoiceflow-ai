@@ -71,16 +71,21 @@ def api_get(
 
 
 def check_api_health() -> bool:
-    try:
-        response = requests.get(
-            f"{API_BASE_URL}/health",
-            headers=api_headers(),
-            timeout=3,
-        )
-        return response.status_code == 200
+    for _ in range(3):
+        try:
+            response = requests.get(
+                f"{API_BASE_URL}/health",
+                headers=api_headers(),
+                timeout=10,
+            )
 
-    except requests.RequestException:
-        return False
+            if response.status_code == 200:
+                return True
+
+        except requests.RequestException:
+            pass
+
+    return False
 
 
 def fetch_stats() -> Tuple[Optional[Dict[str, Any]], Optional[str]]:

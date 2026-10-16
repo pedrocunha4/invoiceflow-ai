@@ -21,7 +21,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         # API / errors
         "api.invalid_json": "The API returned an invalid JSON response.",
         "api.unexpected_format": "Unexpected response format.",
-        "api.unreachable": "The service is currently unavailable. " "Please try again later.",
+        "api.unreachable": ("The backend may be starting after a period of inactivity. " "Please wait a few seconds and refresh the page."),
         "api.service_unavailable": ("The service is temporarily unavailable. " "Please try again later."),
         "api.connection_unavailable": ("The service could not be reached. " "Please try again later."),
         "api.request_failed": ("The request could not be completed. " "Please try again."),
@@ -157,7 +157,7 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         # API / errors
         "api.invalid_json": "A API devolveu uma resposta JSON inválida.",
         "api.unexpected_format": "Formato de resposta inesperado.",
-        "api.unreachable": "O serviço está atualmente indisponível. " "Tente novamente mais tarde.",
+        "api.unreachable": ("O backend pode estar a iniciar após um período de inatividade. " "Aguarde alguns segundos e atualize a página."),
         "api.service_unavailable": ("O serviço está temporariamente indisponível. " "Tente novamente mais tarde."),
         "api.connection_unavailable": ("Não foi possível contactar o serviço. " "Tente novamente mais tarde."),
         "api.request_failed": ("Não foi possível concluir o pedido. " "Tente novamente."),
