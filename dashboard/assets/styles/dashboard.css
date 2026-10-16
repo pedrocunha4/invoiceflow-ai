@@ -1,28 +1,12 @@
-/* ==========================================================================
-   InvoiceFlow AI
-   Dashboard
-   ========================================================================== */
-
-
-/* --------------------------------------------------------------------------
-   KPI cards
-   -------------------------------------------------------------------------- */
-
-/* Reduce only the spacing between the 5 KPI columns */
-
 .st-key-kpi_row [data-testid="stHorizontalBlock"] {
     gap: 0.45rem !important;
 }
 
 
-/* Allow each Streamlit column to use its available width correctly */
-
 .st-key-kpi_row [data-testid="stColumn"] {
     min-width: 0 !important;
 }
 
-
-/* KPI card */
 
 .kpi {
     --tone: var(--accent);
@@ -65,14 +49,10 @@
 
 .kpi:hover {
     transform: translateY(-2px);
-
     border-color: var(--line-strong);
-
     box-shadow: var(--shadow-hover);
 }
 
-
-/* KPI tones */
 
 .kpi-ok {
     --tone: var(--ok);
@@ -87,18 +67,12 @@
 }
 
 
-/* Top row: icon + label */
-
 .kpi-top {
     display: flex;
     align-items: center;
-
     gap: 0.5rem;
-
     min-width: 0;
-
     color: var(--muted);
-
     line-height: 1.15;
 }
 
@@ -106,16 +80,11 @@
 .kpi-icon {
     width: 28px;
     height: 28px;
-
     flex: 0 0 28px;
-
     display: grid;
     place-items: center;
-
     border-radius: 8px;
-
     color: var(--tone);
-
     background:
         color-mix(
             in srgb,
@@ -135,34 +104,22 @@
 
 .kpi-label {
     min-width: 0;
-
     color: var(--muted);
-
     font-size: 0.76rem;
     font-weight: 500;
-
     white-space: nowrap;
 }
 
 
-/* Number / monetary value */
-
 .kpi-value {
     margin-top: 0.7rem;
-
     font-family: var(--font-heading);
-
     color: var(--ink);
-
     font-size: 1.75rem;
     font-weight: 600;
-
     line-height: 1;
-
     letter-spacing: -0.02em;
-
     font-variant-numeric: tabular-nums;
-
     white-space: nowrap;
 }
 
@@ -174,31 +131,21 @@
 }
 
 
-/* Footer: progress bar + text */
-
 .kpi-foot {
     display: flex;
     align-items: center;
-
     gap: 0.5rem;
-
     margin-top: auto;
-
     padding-top: 0.65rem;
-
     color: var(--muted);
 }
 
 
 .kpi-bar {
     flex: 1;
-
     min-width: 18px;
-
     height: 4px;
-
     border-radius: 99px;
-
     background:
         rgba(
             148,
@@ -213,25 +160,18 @@
 
 .kpi-bar span {
     display: block;
-
     height: 100%;
-
     border-radius: 99px;
-
     background: var(--tone);
 }
 
 
 .kpi-note {
     color: var(--muted);
-
     font-size: 0.68rem;
-
     white-space: nowrap;
 }
 
-
-/* Longest KPI label */
 
 .kpi-money {
     padding-left: 0.7rem;
@@ -247,29 +187,15 @@
 .kpi-money .kpi-icon {
     width: 25px;
     height: 25px;
-
     flex-basis: 25px;
 }
 
 
 .kpi-money .kpi-label {
     font-size: 0.66rem;
-
     letter-spacing: -0.025em;
-
     white-space: nowrap;
 }
-
-
-/* --------------------------------------------------------------------------
-   Dashboard chart + review queue alignment
-   -------------------------------------------------------------------------- */
-
-/*
-   Match the spacing used by the KPI row:
-   chart spans KPI 1–3
-   queue spans KPI 4–5.
-*/
 
 .st-key-dashboard_mid_row [data-testid="stHorizontalBlock"] {
     gap: 0.45rem !important;
@@ -281,31 +207,21 @@
 }
 
 
-/* --------------------------------------------------------------------------
-   Review Queue
-   -------------------------------------------------------------------------- */
-
 .q-list {
     display: flex;
-
     flex-direction: column;
 }
 
 
 .q-row {
     display: flex;
-
     align-items: center;
-
     gap: 0.8rem;
-
     padding:
         0.72rem
         0.3rem;
-
     border-bottom:
         1px solid var(--line);
-
     transition:
         background-color var(--ease);
 }
@@ -330,86 +246,59 @@
 .q-dot {
     width: 7px;
     height: 7px;
-
     border-radius: 50%;
-
     background: var(--warn);
-
     flex: none;
 }
 
 
 .q-main {
     flex: 1;
-
     min-width: 0;
 }
 
 
 .q-name {
     font-weight: 600;
-
     font-size: 0.92rem;
-
     color: #F1F5F9;
-
     white-space: nowrap;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
 }
 
 
 .q-meta {
     font-size: 0.76rem;
-
     color: var(--muted);
-
     white-space: nowrap;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
 }
 
 
 .q-amount {
     font-weight: 650;
-
     font-size: 0.9rem;
-
     font-variant-numeric: tabular-nums;
-
     color: #F1F5F9;
 }
 
 
 .q-empty {
     color: var(--muted);
-
     font-size: 0.9rem;
-
     padding:
         1rem
         0.3rem;
 }
 
 
-/* --------------------------------------------------------------------------
-   Invoice Registry filters
-   -------------------------------------------------------------------------- */
-
 .flabel {
     font-size: 0.68rem;
-
     letter-spacing: 0.09em;
-
     text-transform: uppercase;
-
     color: var(--muted);
-
     font-weight: 600;
-
     margin-bottom: 0.1rem;
 }

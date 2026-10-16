@@ -1,68 +1,37 @@
-/* ==========================================================================
-   InvoiceFlow AI
-   Invoice Review
-   ========================================================================== */
-
-
-/* --------------------------------------------------------------------------
-   Two-column height alignment
-   -------------------------------------------------------------------------- */
-
-/* Make the two main review columns stretch to the same height */
-
 [data-testid="stHorizontalBlock"]:has(.st-key-review_left_stack):has(.st-key-card_pdf) {
     align-items: stretch !important;
 }
 
 
-/* Each Streamlit column becomes a vertical flex container */
-
 [data-testid="stHorizontalBlock"]:has(.st-key-review_left_stack):has(.st-key-card_pdf)
 > [data-testid="stColumn"] {
     display: flex;
-
     flex-direction: column;
 }
 
-
-/* Left stack fills the whole available column height */
 
 .st-key-review_left_stack {
     display: flex;
-
     flex-direction: column;
-
     flex: 1 1 auto;
-
     height: 100%;
 }
 
-
-/* Streamlit's internal vertical block must also fill the height */
 
 .st-key-review_left_stack > [data-testid="stVerticalBlock"] {
     display: flex;
-
     flex-direction: column;
-
     flex: 1 1 auto;
-
     height: 100%;
 }
 
 
-/* Validation Checks uses the remaining free space */
-
 .st-key-review_left_stack .st-key-card_checks {
     flex: 1 1 auto;
-
     display: flex;
-
     flex-direction: column;
 }
 
-
-/* Make the content of Validation Checks fill its card */
 
 .st-key-review_left_stack
 .st-key-card_checks
@@ -71,63 +40,37 @@
 }
 
 
-/* --------------------------------------------------------------------------
-   Review queue indicator
-   -------------------------------------------------------------------------- */
-
 .review-queue-pill {
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     width: fit-content;
-
     margin-left: auto;
     margin-right: 0;
-
     padding: 0.3rem 0.65rem;
-
     border:
         1px solid
         rgba(251, 191, 36, 0.35);
-
     border-radius: 8px;
-
     background:
         rgba(251, 191, 36, 0.08);
-
     color: var(--warn);
-
     font-size: 0.72rem;
-
     font-weight: 600;
-
     white-space: nowrap;
 }
 
 
-/* Align awaiting-review pill with the right edge */
-
 [data-testid="stMarkdownContainer"]:has(.review-queue-pill) {
     width: 100% !important;
-
     display: flex !important;
-
     justify-content: flex-end !important;
 }
 
 
-/* --------------------------------------------------------------------------
-   Invoice selector / header card
-   -------------------------------------------------------------------------- */
-
 .st-key-card_review_top {
     width: 100%;
-
     padding: 0.9rem 1rem 1rem;
-
     margin-bottom: 0.15rem;
 }
 
@@ -138,29 +81,19 @@
 }
 
 
-/* Previous / next buttons */
-
 .st-key-review_previous button,
 .st-key-review_next button {
     min-height: 2.35rem !important;
-
     height: 2.35rem !important;
-
     padding: 0 !important;
-
     border:
         1px solid
         var(--line-strong) !important;
-
     border-radius: 9px !important;
-
     background:
         rgba(11, 18, 32, 0.45) !important;
-
     color: var(--muted) !important;
-
     font-size: 1rem !important;
-
     box-shadow: none !important;
 }
 
@@ -168,32 +101,21 @@
 .st-key-review_previous button:hover:not(:disabled),
 .st-key-review_next button:hover:not(:disabled) {
     color: var(--ink) !important;
-
     border-color:
         rgba(34, 211, 238, 0.40) !important;
-
     background:
         rgba(34, 211, 238, 0.05) !important;
-
     transform: none;
 }
 
 
-/* Invoice identity row */
-
 .review-invoice-head {
     display: flex;
-
     align-items: flex-start;
-
     justify-content: space-between;
-
     gap: 1rem;
-
     margin-top: 0.85rem;
-
     padding-top: 0.9rem;
-
     border-top:
         1px solid var(--line);
 }
@@ -201,139 +123,90 @@
 
 .review-last-update {
     display: flex;
-
     align-items: center;
-
     padding-top: 0.35rem;
-
     color: var(--faint);
-
     font-size: 0.72rem;
-
     font-weight: 500;
-
     white-space: nowrap;
 }
 
 
 .st-key-review_invoice_id label p {
     font-size: 0.7rem !important;
-
     letter-spacing: 0.09em;
-
     text-transform: uppercase;
-
     color: var(--muted);
-
     font-weight: 600;
 }
 
 
-/* --------------------------------------------------------------------------
-   AI warning banner
-   -------------------------------------------------------------------------- */
-
 .review-flag {
     display: flex;
-
     align-items: center;
-
     gap: 0.55rem;
-
     width: 100%;
-
     margin-top: 0.8rem;
-
     margin-bottom: 0.65rem;
-
     padding:
         0.55rem
         0.75rem;
-
     border:
         1px solid
         rgba(251, 191, 36, 0.32);
-
     border-radius: 8px;
-
     background:
         rgba(251, 191, 36, 0.06);
-
     color: var(--ink);
-
     font-size: 0.75rem;
-
     line-height: 1.35;
 }
 
 
 .review-flag strong {
     color: var(--warn);
-
     font-weight: 600;
 }
 
 
 .review-flag-icon {
     display: grid;
-
     place-items: center;
-
     flex: none;
-
     color: var(--warn);
 }
 
 
 .review-flag-icon svg {
     width: 15px;
-
     height: 15px;
 }
 
 
-/* --------------------------------------------------------------------------
-   Invoice identity
-   -------------------------------------------------------------------------- */
-
 .inv-head {
     display: flex;
-
     align-items: center;
-
     gap: 0.65rem;
-
     margin: 0;
-
     flex-wrap: wrap;
 }
 
 
 .inv-no {
     font-size: 1.3rem;
-
     font-weight: 700;
-
     letter-spacing: -0.015em;
-
     color: #F8FAFC;
 }
 
 
 .inv-sub {
     color: var(--muted);
-
     font-size: 0.78rem;
-
     margin-top: 0.15rem;
-
     margin-bottom: 0;
 }
 
-
-/* --------------------------------------------------------------------------
-   Key-value details
-   -------------------------------------------------------------------------- */
 
 .kvs,
 .chks {
@@ -343,20 +216,14 @@
 
 .kv {
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
-
     gap: 1rem;
-
     padding:
         0.66rem
         0;
-
     border-bottom:
         1px solid var(--line);
-
     font-size: 0.92rem;
 }
 
@@ -373,78 +240,47 @@
 
 .kv-v {
     font-weight: 600;
-
     color: #F1F5F9;
-
     text-align: right;
-
     font-variant-numeric: tabular-nums;
 }
 
 
-/* Financial total */
-
 .kv-total {
     margin-top: 0.5rem;
-
     margin-bottom: 0.65rem;
-
     padding:
         0.75rem
         0.9rem;
-
     border:
         1px solid
-        rgba(
-            34,
-            211,
-            238,
-            0.45
-        );
-
+        rgba(34,211,238,0.45);
     border-radius: 10px;
-
     background:
-        rgba(
-            34,
-            211,
-            238,
-            0.07
-        );
+        rgba(34,211,238,0.07);
 }
 
 
 .kv-total .kv-k {
     color: #E2E8F0;
-
     font-weight: 600;
 }
 
 
 .kv-total .kv-v {
     color: var(--accent);
-
     font-size: 1.15rem;
-
     font-weight: 700;
 }
 
 
-/* --------------------------------------------------------------------------
-   Validation checks
-   -------------------------------------------------------------------------- */
-
 .chk {
     display: flex;
-
     align-items: center;
-
     gap: 0.75rem;
-
     padding:
         0.62rem
         0;
-
     border-bottom:
         1px solid var(--line);
 }
@@ -457,17 +293,11 @@
 
 .chk-ico {
     width: 26px;
-
     height: 26px;
-
     border-radius: 8px;
-
     display: grid;
-
     place-items: center;
-
     flex: none;
-
     border:
         1px solid;
 }
@@ -475,21 +305,16 @@
 
 .chk-label {
     flex: 1;
-
     font-size: 0.9rem;
-
     color: #E2E8F0;
 }
 
 
 .chk-status {
     font-size: 0.8rem;
-
     font-weight: 600;
 }
 
-
-/* Approved */
 
 .chk-ok {
     color: var(--ok);
@@ -498,24 +323,11 @@
 
 .chk-ico.chk-ok {
     background:
-        rgba(
-            52,
-            211,
-            153,
-            0.10
-        );
-
+        rgba(52,211,153,0.10);
     border-color:
-        rgba(
-            52,
-            211,
-            153,
-            0.35
-        );
+        rgba(52,211,153,0.35);
 }
 
-
-/* Needs review */
 
 .chk-warn {
     color: var(--warn);
@@ -524,24 +336,11 @@
 
 .chk-ico.chk-warn {
     background:
-        rgba(
-            251,
-            191,
-            36,
-            0.10
-        );
-
+        rgba(251,191,36,0.10);
     border-color:
-        rgba(
-            251,
-            191,
-            36,
-            0.35
-        );
+        rgba(251,191,36,0.35);
 }
 
-
-/* Rejected */
 
 .chk-bad {
     color: var(--bad);
@@ -550,83 +349,43 @@
 
 .chk-ico.chk-bad {
     background:
-        rgba(
-            248,
-            113,
-            113,
-            0.10
-        );
-
+        rgba(248,113,113,0.10);
     border-color:
-        rgba(
-            248,
-            113,
-            113,
-            0.35
-        );
+        rgba(248,113,113,0.35);
 }
 
 
-/* --------------------------------------------------------------------------
-   PDF preview
-   -------------------------------------------------------------------------- */
-
 .st-key-card_pdf .pdf-file-name {
     max-width: 330px;
-
     font-size: 0.84rem !important;
-
     font-weight: 600;
-
     line-height: 1.2;
-
     white-space: nowrap;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
 }
 
 
 .pdf-head {
     display: flex;
-
     align-items: center;
-
     gap: 0.7rem;
 }
 
 
 .pdf-ico {
     width: 30px;
-
     height: 30px;
-
     border-radius: 8px;
-
     display: grid;
-
     place-items: center;
-
     color: var(--bad);
-
     background:
-        rgba(
-            248,
-            113,
-            113,
-            0.10
-        );
+        rgba(248,113,113,0.10);
 
     border:
         1px solid
-        rgba(
-            248,
-            113,
-            113,
-            0.30
-        );
-
+        rgba(248,113,113,0.30);
     flex: none;
 }
 
@@ -634,73 +393,44 @@
 .pdf-wrap {
     border:
         1px solid var(--line);
-
     border-radius: 10px;
-
     overflow: hidden;
-
     background: #0B1220;
 }
 
 
 .pdf-frame {
     display: block;
-
     width: 100%;
-
     height: 640px;
-
     border: 0;
 }
 
-
-/* --------------------------------------------------------------------------
-   Review decision buttons
-   -------------------------------------------------------------------------- */
-
-/*
-   The card itself already inherits the shared card styling
-   from components.css.
-*/
 
 .st-key-btn_approve button,
 .st-key-btn_review button,
 .st-key-btn_reject button {
     position: relative;
-
     min-height: 4.8rem;
-
     padding:
         0.7rem
         0.85rem;
-
     border-radius: 10px !important;
-
     display: grid !important;
-
     grid-template-columns: 1fr;
-
     grid-template-areas:
         "title"
         "desc";
-
     row-gap: 0.15rem;
-
     align-content: center;
-
     justify-items: start;
-
     text-align: left;
-
     background:
         rgba(11, 18, 32, 0.40);
-
     border:
         1px solid
         var(--line-strong);
-
     box-shadow: none !important;
-
     transition:
         background-color var(--ease),
         border-color var(--ease),
@@ -708,78 +438,43 @@
 }
 
 
-/* Streamlit button content */
-
 .st-key-btn_approve button > div,
 .st-key-btn_review button > div,
 .st-key-btn_reject button > div {
     grid-area: title;
-
     width: 100%;
-
     display: flex !important;
-
     align-items: center !important;
-
     justify-content: flex-start !important;
-
     gap: 0.4rem !important;
 }
 
-
-/* Native icons */
 
 .st-key-btn_approve button [data-testid="stIconMaterial"],
 .st-key-btn_review button [data-testid="stIconMaterial"],
 .st-key-btn_reject button [data-testid="stIconMaterial"] {
     display: inline-flex !important;
-
     align-items: center;
-
     justify-content: center;
-
     width: 24px;
-
     height: 24px;
-
     flex: 0 0 24px;
-
     margin-right: 0.1rem;
-
     border: 1px solid;
-
     border-radius: 7px;
-
     font-size: 13px !important;
-
     line-height: 1 !important;
 }
 
 
-/* Approve icon */
-
 .st-key-btn_approve button [data-testid="stIconMaterial"] {
     color: var(--ok);
-
     background:
-        rgba(
-            52,
-            211,
-            153,
-            0.10
-        );
-
+        rgba(52,211,153,0.10);
     border-color:
-        rgba(
-            52,
-            211,
-            153,
-            0.30
-        );
+        rgba(52,211,153,0.30);
 }
 
-
-/* Needs Review icon */
 
 .st-key-btn_review button [data-testid="stIconMaterial"] {
     color: var(--warn);
@@ -802,8 +497,6 @@
 }
 
 
-/* Reject icon */
-
 .st-key-btn_reject button [data-testid="stIconMaterial"] {
     color: var(--bad);
 
@@ -825,8 +518,6 @@
 }
 
 
-/* Decision title */
-
 .st-key-btn_approve button p,
 .st-key-btn_review button p,
 .st-key-btn_reject button p {
@@ -846,8 +537,6 @@
 }
 
 
-/* Dynamic description injected by ui.py */
-
 .st-key-btn_approve button::after,
 .st-key-btn_review button::after,
 .st-key-btn_reject button::after {
@@ -862,10 +551,6 @@
     color: var(--muted);
 }
 
-
-/* --------------------------------------------------------------------------
-   Approve
-   -------------------------------------------------------------------------- */
 
 .st-key-btn_approve button {
     color: var(--ok);
@@ -919,10 +604,6 @@
 }
 
 
-/* --------------------------------------------------------------------------
-   Needs Review
-   -------------------------------------------------------------------------- */
-
 .st-key-btn_review button {
     color: var(--warn);
 }
@@ -974,10 +655,6 @@
     color: var(--warn) !important;
 }
 
-
-/* --------------------------------------------------------------------------
-   Reject
-   -------------------------------------------------------------------------- */
 
 .st-key-btn_reject button {
     color: var(--bad);

@@ -165,9 +165,7 @@ def render_invoice_table(
             gap="small",
         )
 
-        # -------------------------------------------------
         # Search
-        # -------------------------------------------------
 
         with search_col:
             html_block(
@@ -185,9 +183,7 @@ def render_invoice_table(
                 key="registry_search",
             )
 
-        # -------------------------------------------------
         # Status
-        # -------------------------------------------------
 
         with status_col:
             html_block(
@@ -231,9 +227,7 @@ def render_invoice_table(
                 ]
             )
 
-        # -------------------------------------------------
         # Invoice date
-        # -------------------------------------------------
 
         date_format = (
             "DD/MM/YYYY"
@@ -294,9 +288,7 @@ def render_invoice_table(
                     label_visibility="collapsed",
                 )
 
-        # -------------------------------------------------
         # Clear filters
-        # -------------------------------------------------
 
         date_range = (
             st.session_state.get(
@@ -340,9 +332,7 @@ def render_invoice_table(
                 width="stretch",
             )
 
-        # -------------------------------------------------
         # Apply filters
-        # -------------------------------------------------
 
         start_date = None
         end_date = None
@@ -385,9 +375,7 @@ def render_invoice_table(
             )
             return
 
-        # -------------------------------------------------
         # Table
-        # -------------------------------------------------
 
         col = {
             name: t(

@@ -12,9 +12,7 @@ from api.services.supabase_client import (
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
 # Database exceptions
-# ---------------------------------------------------------------------------
 
 class DatabaseServiceError(Exception):
     """Base exception for database operation failures."""
@@ -24,9 +22,7 @@ class DatabaseUnavailableError(DatabaseServiceError):
     """Temporary network or availability problem with Supabase."""
 
 
-# ---------------------------------------------------------------------------
 # Error handling
-# ---------------------------------------------------------------------------
 
 def _handle_database_error(
     operation: str,
@@ -61,9 +57,7 @@ def _handle_database_error(
     ) from exc
 
 
-# ---------------------------------------------------------------------------
 # Invoice queries
-# ---------------------------------------------------------------------------
 
 def find_invoice_by_hash(
     file_hash: str
@@ -308,9 +302,8 @@ def update_invoice_status(
     return None
 
 
-# ---------------------------------------------------------------------------
-# Dashboard statistics
-# ---------------------------------------------------------------------------
+
+# Dashboard stats
 
 def get_invoice_stats() -> Dict[str, Any]:
 

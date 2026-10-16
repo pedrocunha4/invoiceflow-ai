@@ -31,10 +31,6 @@ client = TestClient(
 )
 
 
-# ---------------------------------------------------------
-# Database error mapping
-# ---------------------------------------------------------
-
 def test_database_unavailable_returns_503():
 
     error = DatabaseUnavailableError(
@@ -78,10 +74,6 @@ def test_database_configuration_error_returns_500():
     assert http_error.status_code == 500
 
 
-# ---------------------------------------------------------
-# Storage error mapping
-# ---------------------------------------------------------
-
 def test_storage_unavailable_returns_503():
 
     error = StorageUnavailableError(
@@ -111,10 +103,6 @@ def test_storage_operation_error_returns_502():
 
     assert http_error.status_code == 502
 
-
-# ---------------------------------------------------------
-# AI error handling
-# ---------------------------------------------------------
 
 def test_ai_unavailable_returns_503(
     monkeypatch,
@@ -164,10 +152,6 @@ def test_ai_unavailable_returns_503(
     )
 
 
-# ---------------------------------------------------------
-# Storage rollback
-# ---------------------------------------------------------
-
 def test_pdf_is_deleted_when_database_save_fails(
     monkeypatch,
 ):
@@ -190,43 +174,36 @@ def test_pdf_is_deleted_when_database_save_fails(
 
     deleted_files = []
 
-    # Audit calls inside invoice processing
     monkeypatch.setattr(
         "api.services.invoice_processing_service.create_audit_log",
         lambda **kwargs: None,
     )
 
-    # Audit calls performed by core error helpers
     monkeypatch.setattr(
         "api.core.errors.create_audit_log",
         lambda **kwargs: None,
     )
 
-    # No duplicate by hash
     monkeypatch.setattr(
         "api.services.invoice_processing_service.find_invoice_by_hash",
         lambda file_hash: None,
     )
 
-    # Fake PDF extraction
     monkeypatch.setattr(
         "api.services.invoice_processing_service.extract_text_from_pdf",
         lambda content: "Fake invoice text",
     )
 
-    # Fake AI result
     monkeypatch.setattr(
         "api.services.invoice_processing_service.extract_invoice_data",
         lambda text: extracted_invoice,
     )
 
-    # No duplicate by invoice number
     monkeypatch.setattr(
         "api.services.invoice_processing_service.find_invoice_by_number",
         lambda supplier_vat_number, invoice_number: None,
     )
 
-    # Fake business validation
     monkeypatch.setattr(
         "api.services.invoice_processing_service.validate_invoice_business_rules",
         lambda invoice: {
@@ -236,19 +213,16 @@ def test_pdf_is_deleted_when_database_save_fails(
         },
     )
 
-    # Fake storage path
     monkeypatch.setattr(
         "api.services.invoice_processing_service.build_invoice_file_path",
         lambda **kwargs: stored_path,
     )
 
-    # Pretend Storage upload succeeded
     monkeypatch.setattr(
         "api.services.invoice_processing_service.upload_invoice_pdf",
         lambda file_path, content: stored_path,
     )
 
-    # Simulate database failure after Storage upload
     def fail_database_save(**kwargs):
         raise DatabaseServiceError(
             "Database insert failed"
@@ -259,7 +233,6 @@ def test_pdf_is_deleted_when_database_save_fails(
         fail_database_save,
     )
 
-    # Capture rollback instead of touching Supabase
     def fake_delete_invoice_pdf(
         file_path,
     ):
@@ -283,11 +256,8 @@ def test_pdf_is_deleted_when_database_save_fails(
         },
     )
 
-    # Database failure is returned safely
     assert response.status_code == 502
 
-    # Most important assertion:
-    # the uploaded PDF was removed
     assert deleted_files == [
         stored_path
     ]

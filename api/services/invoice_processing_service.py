@@ -49,12 +49,10 @@ def process_invoice_document(
 ) -> dict:
     """Run the complete invoice-processing workflow."""
 
-    # Generate SHA-256 fingerprint
     file_hash = hashlib.sha256(
         content,
     ).hexdigest()
 
-    # Register received document
     create_audit_log(
         event_type="invoice_received",
         source="api",
@@ -66,10 +64,7 @@ def process_invoice_document(
         },
     )
 
-    # -----------------------------------------------------
     # Duplicate check by file hash
-    # -----------------------------------------------------
-
     try:
         existing_invoice = find_invoice_by_hash(
             file_hash,
@@ -115,10 +110,7 @@ def process_invoice_document(
             },
         )
 
-    # -----------------------------------------------------
     # PDF extraction
-    # -----------------------------------------------------
-
     extracted_text = extract_text_from_pdf(
         content,
     )
@@ -131,10 +123,7 @@ def process_invoice_document(
             ),
         )
 
-    # -----------------------------------------------------
     # AI extraction
-    # -----------------------------------------------------
-
     try:
         invoice = extract_invoice_data(
             extracted_text,
@@ -281,10 +270,7 @@ def process_invoice_document(
         },
     )
 
-    # -----------------------------------------------------
     # Duplicate check by supplier + invoice number
-    # -----------------------------------------------------
-
     try:
         existing_invoice = find_invoice_by_number(
             invoice.supplier_vat_number,
@@ -339,9 +325,7 @@ def process_invoice_document(
             },
         )
 
-    # -----------------------------------------------------
     # Business validation
-    # -----------------------------------------------------
 
     validation_result = (
         validate_invoice_business_rules(
@@ -367,9 +351,7 @@ def process_invoice_document(
         },
     )
 
-    # -----------------------------------------------------
     # Document storage
-    # -----------------------------------------------------
 
     file_path = build_invoice_file_path(
         supplier_vat_number=(
@@ -401,9 +383,7 @@ def process_invoice_document(
 
         raise storage_http_exception(exc)
 
-    # -----------------------------------------------------
     # Save invoice in database
-    # -----------------------------------------------------
 
     try:
         saved_invoice = save_invoice(
@@ -418,8 +398,6 @@ def process_invoice_document(
         SupabaseConfigurationError,
         DatabaseServiceError,
     ) as exc:
-        # Compensating action:
-        # remove the uploaded PDF if the database insert fails.
         try:
             delete_invoice_pdf(
                 stored_file_path,
@@ -429,7 +407,6 @@ def process_invoice_document(
             SupabaseConfigurationError,
             StorageServiceError,
         ):
-            # Do not hide the original database failure.
             pass
 
         audit_database_failure(
@@ -441,9 +418,7 @@ def process_invoice_document(
 
         raise database_http_exception(exc)
 
-    # -----------------------------------------------------
     # Audit successful document storage
-    # -----------------------------------------------------
 
     create_audit_log(
         event_type="document_stored",
@@ -459,9 +434,7 @@ def process_invoice_document(
         },
     )
 
-    # -----------------------------------------------------
     # Audit invoice creation
-    # -----------------------------------------------------
 
     create_audit_log(
         event_type="invoice_created",
@@ -494,9 +467,7 @@ def process_invoice_document(
         },
     )
 
-    # -----------------------------------------------------
     # Make automation
-    # -----------------------------------------------------
 
     make_result = send_make_event(
         event_type="invoice_processed",

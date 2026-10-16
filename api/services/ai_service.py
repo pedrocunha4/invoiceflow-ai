@@ -22,16 +22,12 @@ logger = logging.getLogger(__name__)
 
 
 MODEL_NAME = "openai/gpt-oss-20b"
-
 AI_TIMEOUT_SECONDS = 20.0
-
-# 2 retries + initial request = maximum of 3 attempts
 AI_MAX_RETRIES = 2
 
 
-# ---------------------------------------------------------------------------
-# AI service exceptions
-# ---------------------------------------------------------------------------
+
+# exceptions
 
 class AIServiceError(Exception):
     """Base exception for AI service failures."""
@@ -49,9 +45,7 @@ class AIResponseError(AIServiceError):
     """Unexpected or unusable response returned by the AI service."""
 
 
-# ---------------------------------------------------------------------------
-# Invoice schema
-# ---------------------------------------------------------------------------
+# schema
 
 INVOICE_SCHEMA = {
     "type": "object",
@@ -95,9 +89,7 @@ INVOICE_SCHEMA = {
 }
 
 
-# ---------------------------------------------------------------------------
 # Groq client
-# ---------------------------------------------------------------------------
 
 def get_groq_client() -> Groq:
     """
@@ -126,10 +118,7 @@ def get_groq_client() -> Groq:
         max_retries=AI_MAX_RETRIES
     )
 
-
-# ---------------------------------------------------------------------------
 # Invoice extraction
-# ---------------------------------------------------------------------------
 
 def extract_invoice_data(
     invoice_text: str
@@ -279,8 +268,6 @@ def extract_invoice_data(
             "The AI returned invalid structured data."
         ) from exc
 
-    # Pydantic ValidationError is intentionally allowed to propagate.
-    # main.py already treats it as an invalid / unextractable invoice.
     return InvoiceData.model_validate(
         extracted_data
     )

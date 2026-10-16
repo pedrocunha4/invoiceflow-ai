@@ -4,7 +4,33 @@ InvoiceFlow AI is an intelligent invoice processing system designed to automate 
 
 The project combines **Process Automation, Systems Integration, AI, Data Validation and Document Management** in a complete end-to-end workflow.
 
-It was developed as a portfolio project to demonstrate practical skills in backend development, API integration, workflow automation, databases, AI services, testing and resilient system design.
+It was developed as a portfolio project to demonstrate practical skills in backend development, API integration, workflow automation, databases, AI services, testing, cloud deployment and resilient system design.
+
+---
+
+## Live Demo
+
+InvoiceFlow AI is deployed as a public portfolio demonstration with read-only viewer access.
+
+**Live Application:**
+https://invoiceflow-ai-demo.streamlit.app
+
+**Viewer access code:**
+`invoiceflow`
+
+**FastAPI Backend:**
+https://invoiceflow-ai-api.onrender.com
+
+**API Documentation:**
+https://invoiceflow-ai-api.onrender.com/docs
+
+The public viewer can explore the dashboard, inspect processed sample invoices, use filters, open the Invoice Review workspace and view the associated PDF documents.
+
+Viewer access is strictly read-only: visitors cannot process new invoices, change invoice statuses or trigger write automation workflows. Full administrative access is protected by a separate private password that is never published.
+
+The deployed demo uses synthetic sample invoice data for portfolio demonstration purposes.
+
+> The FastAPI backend runs on Render's free service tier, so the first request after a period of inactivity may take a short time while the service starts.
 
 ---
 
@@ -25,8 +51,10 @@ InvoiceFlow AI currently supports:
 - Audit logging
 - Dashboard-to-API authentication with `X-API-Key`
 - Secure temporary PDF access with short-lived tokens
-- Password-protected portfolio demo access
+- Two-level portfolio demo access: read-only viewer and private administrator
 - PDF signature validation and processing limits
+- Native PDF viewing inside the Streamlit review interface
+- Cloud deployment with Streamlit Community Cloud and Render
 - Bilingual dashboard (English / Portuguese)
 - Service failure handling
 - Automated tests with pytest
@@ -160,12 +188,22 @@ Ruff is used for static code quality checks and import validation.
 
 GitHub Actions automatically runs linting and the test suite on pushes and pull requests to `main`.
 
+### Deployment
+
+- Streamlit Community Cloud
+- Render
+
+The Streamlit dashboard is deployed on Streamlit Community Cloud, while the FastAPI backend runs as a separate service on Render.
+
 ---
 
 ## Project Structure
 
 ```text
 invoiceflow-ai/
+│
+├── .devcontainer/
+│   └── devcontainer.json
 │
 ├── .github/
 │   └── workflows/
@@ -254,6 +292,7 @@ invoiceflow-ai/
 │       └── process-review.png
 │
 ├── make-workflows/
+│   ├── google-sheets-result.png
 │   ├── invoiceflow-workflow.png
 │   └── README.md
 │
@@ -395,13 +434,18 @@ InvoiceFlow AI includes service-to-service authentication between the Streamlit 
 
 ### Portfolio demo access
 
-The Streamlit interface can be protected with an optional demo access password.
+The deployed Streamlit application uses two access levels:
 
-When `INVOICEFLOW_DEMO_PASSWORD` is configured, visitors must authenticate before the dashboard communicates with the backend API.
+- **Viewer** — read-only portfolio access configured through `INVOICEFLOW_VIEWER_PASSWORD`;
+- **Administrator** — full application access configured through `INVOICEFLOW_DEMO_PASSWORD`.
 
-The password is stored only as an environment variable and is never committed to the repository.
+Viewer users can navigate the dashboard, inspect processed invoices, open the Invoice Review workspace and view sample PDF documents. They cannot access invoice processing or change invoice statuses.
 
-This lightweight access layer is intended to protect the public portfolio demonstration from unauthorized use of AI processing, database operations and automation workflows.
+Administrator users can access the complete workflow, including AI invoice processing and human review decisions.
+
+Both access codes are provided through environment variables and are never hard-coded into the application. Only the read-only viewer code is intentionally published for portfolio access.
+
+This separation prevents public visitors from consuming AI processing resources, modifying stored data or triggering write automation workflows.
 
 ### Dashboard-to-API authentication
 
@@ -439,6 +483,7 @@ Current processing limits are:
 Maximum file size: 10 MB
 Maximum PDF pages: 2
 Maximum extracted text: 10,000 characters
+```
 
 ### Secure PDF access
 
@@ -485,6 +530,8 @@ Status changes are:
 1. persisted in PostgreSQL;
 2. registered in the audit log;
 3. dispatched to the Make automation workflow.
+
+In the public deployment, these write actions are available only to the administrator role. Viewer access remains read-only.
 
 ---
 
@@ -610,6 +657,33 @@ External services are mocked, so running the tests does not consume Groq request
 
 ---
 
+## Deployment
+
+The project is deployed as separate frontend and backend services:
+
+```text
+Browser
+   ↓
+Streamlit Community Cloud
+   ↓
+FastAPI on Render
+   ↓
+Groq AI / Supabase / Make
+```
+
+### Public endpoints
+
+- **Live application:** https://invoiceflow-ai-demo.streamlit.app
+- **FastAPI service:** https://invoiceflow-ai-api.onrender.com
+- **OpenAPI / Swagger docs:** https://invoiceflow-ai-api.onrender.com/docs
+- **Health endpoint:** https://invoiceflow-ai-api.onrender.com/health
+
+The Streamlit application communicates with FastAPI server-side using the private `INVOICEFLOW_API_KEY`. Visitors never receive this key in the browser.
+
+The application, database integration, private document storage, AI extraction, Make automation and PDF access flow have been tested end-to-end in the deployed environment.
+
+---
+
 ## Running the Project Locally
 
 ### 1. Clone the repository
@@ -663,7 +737,7 @@ Never commit the real `.env` file.
 uvicorn api.main:app --reload
 ```
 
-The API will be available at:
+The local FastAPI backend will run at:
 
 ```text
 http://127.0.0.1:8000
@@ -698,17 +772,22 @@ SUPABASE_SECRET_KEY=
 MAKE_WEBHOOK_URL=
 MAKE_WEBHOOK_API_KEY=
 
-INVOICEFLOW_API_URL=http://127.0.0.1:8000
 INVOICEFLOW_API_KEY=
 INVOICEFLOW_PDF_TOKEN_SECRET=
+
 INVOICEFLOW_DEMO_PASSWORD=
+INVOICEFLOW_VIEWER_PASSWORD=
 ```
 
 `INVOICEFLOW_API_KEY` authenticates communication between the Streamlit dashboard and FastAPI.
 
 `INVOICEFLOW_PDF_TOKEN_SECRET` is used to cryptographically sign temporary PDF access tokens.
 
-`INVOICEFLOW_DEMO_PASSWORD` optionally protects the Streamlit portfolio demo from unauthorized access. If it is not configured, the dashboard can run without the demo access screen, which is useful for local development.
+`INVOICEFLOW_DEMO_PASSWORD` configures the private administrator access code.
+
+`INVOICEFLOW_VIEWER_PASSWORD` configures the read-only portfolio access code.
+
+If neither demo password is configured, the dashboard runs with administrator privileges for local development.
 
 Strong random values can be generated with:
 
@@ -783,6 +862,12 @@ The token is validated by the API, exchanged for a temporary HttpOnly cookie and
 
 This keeps the API key private and prevents direct exposure of Supabase Storage URLs.
 
+### Why two demo access levels?
+
+A public portfolio should be easy to explore without allowing anonymous visitors to consume AI resources or modify application data.
+
+The viewer role therefore exposes the monitoring and review experience in read-only mode, while the private administrator role retains access to invoice processing and review decisions.
+
 ### Why compensating actions?
 
 Storage and PostgreSQL are separate systems and therefore do not share a database transaction.
@@ -797,16 +882,17 @@ InvoiceFlow AI is currently a portfolio-oriented implementation and not a produc
 
 Current limitations include:
 
-- no individual end-user accounts or multi-user authentication;
-- no role-based access control;
+- no individual end-user accounts or production-grade identity management;
+- viewer / administrator access is a lightweight portfolio control rather than full role-based access control;
 - no OCR pipeline for image-only scanned invoices;
 - AI extraction may require human review for ambiguous documents;
 - no persistent retry queue for failed automation events;
 - Make webhook acceptance confirms dispatch, not completion of the entire Make scenario;
 - business validation currently focuses on a limited set of invoice rules;
-- deployment and production monitoring are outside the current local development scope.
+- no production-grade observability, alerting or distributed job queue;
+- the free Render service may introduce a cold-start delay after inactivity.
 
-Possible future improvements include end-user authentication, role-based access control, OCR support, additional validation rules, persistent retry mechanisms, cloud deployment and production monitoring.
+Possible future improvements include production user authentication and RBAC, OCR support, additional validation rules, persistent retry mechanisms, background job processing, richer observability and production monitoring.
 
 ---
 
@@ -843,6 +929,8 @@ Workflow Automation
 Error Handling
 Software Testing
 Continuous Integration
+Cloud Deployment
+Read-Only Demo Access
 ```
 
 ---

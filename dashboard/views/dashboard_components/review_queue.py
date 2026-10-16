@@ -14,11 +14,7 @@ from core.ui import (
 QUEUE_LIMIT = 5
 CARD_HEIGHT = 440
 
-VALIDATION_KEYS = (
-    "validation_errors",
-    "validation_error",
-    "validation_issues",
-)
+VALIDATION_KEYS = ("validation_errors", "validation_error", "validation_issues",)
 
 
 def queue_reason(

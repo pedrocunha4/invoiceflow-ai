@@ -21,10 +21,7 @@ app = FastAPI(
     docs_url=None,
 )
 
-
-# ---------------------------------------------------------
 # Static files
-# ---------------------------------------------------------
 
 app.mount(
     "/icon",
@@ -32,10 +29,7 @@ app.mount(
     name="icon",
 )
 
-
-# ---------------------------------------------------------
 # Custom Swagger UI
-# ---------------------------------------------------------
 
 @app.get(
     "/docs",
@@ -48,10 +42,7 @@ def custom_swagger_ui():
         swagger_favicon_url="/icon/favicon.png",
     )
 
-
-# ---------------------------------------------------------
 # API routers
-# ---------------------------------------------------------
 
 app.include_router(general_router)
 app.include_router(dashboard_router)

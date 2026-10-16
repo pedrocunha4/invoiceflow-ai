@@ -16,11 +16,7 @@ from core.ui import (
     to_float,
 )
 
-VALIDATION_KEYS = (
-    "validation_errors",
-    "validation_error",
-    "validation_issues",
-)
+VALIDATION_KEYS = ("validation_errors", "validation_error", "validation_issues",)
 
 def translate_validation_issue(
     issue: str,

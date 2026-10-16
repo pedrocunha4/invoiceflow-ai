@@ -12,10 +12,7 @@ logger = logging.getLogger(__name__)
 
 STORAGE_BUCKET = "invoice-documents"
 
-
-# ---------------------------------------------------------------------------
 # Storage exceptions
-# ---------------------------------------------------------------------------
 
 class StorageServiceError(Exception):
     """Base exception for Supabase Storage failures."""
@@ -24,10 +21,7 @@ class StorageServiceError(Exception):
 class StorageUnavailableError(StorageServiceError):
     """Temporary connection or availability failure."""
 
-
-# ---------------------------------------------------------------------------
 # Error handling
-# ---------------------------------------------------------------------------
 
 def _handle_storage_error(
     operation: str,
@@ -61,10 +55,7 @@ def _handle_storage_error(
         "The document storage operation failed."
     ) from exc
 
-
-# ---------------------------------------------------------------------------
 # File path
-# ---------------------------------------------------------------------------
 
 def build_invoice_file_path(
     supplier_vat_number: str,
@@ -106,10 +97,7 @@ def build_invoice_file_path(
         f"{filename}"
     )
 
-
-# ---------------------------------------------------------------------------
 # Upload
-# ---------------------------------------------------------------------------
 
 def upload_invoice_pdf(
     file_path: str,
@@ -145,10 +133,7 @@ def upload_invoice_pdf(
             exc
         )
 
-
-# ---------------------------------------------------------------------------
 # Signed URL
-# ---------------------------------------------------------------------------
 
 def create_invoice_signed_url(
     file_path: str,
@@ -198,10 +183,7 @@ def create_invoice_signed_url(
         "Could not create a signed URL."
     )
 
-
-# ---------------------------------------------------------------------------
 # Download
-# ---------------------------------------------------------------------------
 
 def download_invoice_pdf(
     file_path: str

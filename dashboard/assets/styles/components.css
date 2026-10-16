@@ -1,13 +1,3 @@
-/* ==========================================================================
-   InvoiceFlow AI
-   Shared components
-   ========================================================================== */
-
-
-/* --------------------------------------------------------------------------
-   Cards
-   -------------------------------------------------------------------------- */
-
 .st-key-card_chart,
 .st-key-card_queue,
 .st-key-registry_panel,
@@ -31,9 +21,6 @@
         box-shadow var(--ease);
 }
 
-
-/* Decision buttons row */
-
 .st-key-card_decision
 [data-testid="stHorizontalBlock"] {
     gap: 0.45rem !important;
@@ -56,10 +43,6 @@
     box-shadow: var(--shadow-hover);
 }
 
-
-/* --------------------------------------------------------------------------
-   Card headers
-   -------------------------------------------------------------------------- */
 
 .card-head {
     display: flex;
@@ -134,10 +117,6 @@
 }
 
 
-/* --------------------------------------------------------------------------
-   Status badges
-   -------------------------------------------------------------------------- */
-
 .badge {
     display: inline-flex;
 
@@ -173,8 +152,6 @@
 }
 
 
-/* Approved */
-
 .badge-ok {
     color: var(--ok);
 
@@ -195,8 +172,6 @@
         );
 }
 
-
-/* Needs review */
 
 .badge-warn {
     color: var(--warn);
@@ -219,8 +194,6 @@
 }
 
 
-/* Rejected */
-
 .badge-bad {
     color: var(--bad);
 
@@ -241,8 +214,6 @@
         );
 }
 
-
-/* Unknown / neutral */
 
 .badge-neutral {
     color: var(--muted);

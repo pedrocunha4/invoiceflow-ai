@@ -23,26 +23,13 @@ from views.dashboard import render_dashboard
 from views.invoice_review import render_review_page
 from views.process_invoice import render_upload_section
 
-# ---------------------------------------------------------------------------
 # Configuration
-# ---------------------------------------------------------------------------
 
-NAV_PAGES = [
-    "Dashboard",
-    "Process Invoice",
-    "Invoice Review",
-]
-
-NAV_ICONS = {
-    "Dashboard": "dashboard",
-    "Process Invoice": "upload_file",
-    "Invoice Review": "fact_check",
-}
+NAV_PAGES = ["Dashboard", "Process Invoice", "Invoice Review",]
+NAV_ICONS = {"Dashboard": "dashboard", "Process Invoice": "upload_file", "Invoice Review": "fact_check",}
 
 
-# ---------------------------------------------------------------------------
 # Layout
-# ---------------------------------------------------------------------------
 
 def render_language_switch() -> None:
     st.segmented_control(
@@ -158,10 +145,7 @@ def render_sidebar(
 
         return page
 
-
-# ---------------------------------------------------------------------------
 # Entry point
-# ---------------------------------------------------------------------------
 
 def require_demo_access() -> bool:
     """Protect the public demo with viewer and admin access roles."""
