@@ -5,6 +5,6 @@ pdfplumber
 groq
 python-dotenv
 supabase
-streamlit==1.65.0
+streamlit[pdf]==1.65.0
 requests
 pandas

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import base64
 from pathlib import Path
 from typing import Any, Dict
 
@@ -109,19 +108,14 @@ def render_pdf_panel(
             )
 
             if content:
-                encoded = base64.b64encode(
-                    content
-                ).decode(
-                    "ascii"
-                )
-
-                html_block(
-                    '<div class="pdf-wrap">'
-                    '<iframe class="pdf-frame" '
-                    f'title="{esc(file_name)}" '
-                    f'src="data:application/pdf;base64,{encoded}">'
-                    '</iframe>'
-                    '</div>'
+                st.pdf(
+                    content,
+                    height=630,
+                    key=(
+                        f"invoice_pdf_"
+                        f"{invoice.get('id')}"
+                    ),
+                    alt=file_name,
                 )
 
             else:
