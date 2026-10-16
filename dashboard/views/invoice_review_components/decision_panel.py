@@ -18,6 +18,14 @@ def handle_review_decision(
     level: str,
     message: str,
 ) -> None:
+    if (
+        st.session_state.get(
+            "demo_role"
+        )
+        == "viewer"
+    ):
+        return
+
     ok, error = update_invoice_status(
         invoice_id,
         new_status,
@@ -39,6 +47,13 @@ def render_decision_panel(
     invoice_id: Any,
     current_status: Any,
 ) -> None:
+    read_only = (
+        st.session_state.get(
+            "demo_role"
+        )
+        == "viewer"
+    )
+
     decisions = [
         (
             t("decision.approve"),
@@ -77,6 +92,13 @@ def render_decision_panel(
             )
         )
 
+        if read_only:
+            st.info(
+                t(
+                    "decision.read_only"
+                )
+            )
+
         columns = st.columns(
             3,
             gap="small",
@@ -99,7 +121,8 @@ def render_decision_panel(
                     key=key,
                     icon=icon,
                     disabled=(
-                        current_status
+                        read_only
+                        or current_status
                         == status
                     ),
                     on_click=(

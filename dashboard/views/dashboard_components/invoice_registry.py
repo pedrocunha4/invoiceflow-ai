@@ -248,11 +248,18 @@ def render_invoice_table(
                 f'</div>'
             )
 
+            if (
+                "registry_date_range"
+                not in st.session_state
+            ):
+                st.session_state[
+                    "registry_date_range"
+                ] = ()
+
             current_range = (
-                st.session_state.get(
-                    "registry_date_range",
-                    (),
-                )
+                st.session_state[
+                    "registry_date_range"
+                ]
             )
 
             if (
@@ -282,7 +289,6 @@ def render_invoice_table(
                     t(
                         "registry.date_range"
                     ),
-                    value=current_range,
                     key="registry_date_range",
                     format=date_format,
                     label_visibility="collapsed",

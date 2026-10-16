@@ -98,6 +98,8 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "process.invalid_file": "The uploaded file is not valid.",
         "process.too_many_pages": ("The PDF exceeds the maximum allowed number of pages."),
         "process.too_much_text": ("The PDF contains too much text to be processed."),
+        "process.read_only": ("Invoice processing is disabled in read-only demo mode."),
+        "decision.read_only": ("Read-only demo: review decisions are disabled."),
         # Review
         "review.title": "Invoice Review",
         "review.caption": "Verify the AI-extracted data and record your decision.",
@@ -232,6 +234,8 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "process.invalid_file": "O ficheiro carregado não é válido.",
         "process.too_many_pages": ("O PDF excede o número máximo de páginas permitido."),
         "process.too_much_text": ("O PDF contém demasiado texto para ser processado."),
+        "process.read_only": ("O processamento de faturas está desativado no modo de demonstração apenas de leitura."),
+        "decision.read_only": ("Demonstração apenas de leitura: as decisões de revisão estão desativadas."),
         # Review
         "review.title": "Revisão de faturas",
         "review.caption": "Verifique os dados extraídos pela IA e registe a sua decisão.",

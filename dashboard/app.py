@@ -105,7 +105,18 @@ def brand_html() -> str:
 
 def render_sidebar(
     api_online: bool,
+    role: str,
 ) -> str:
+    
+    pages = (
+        [
+            "Dashboard",
+            "Invoice Review",
+        ]
+        if role == "viewer"
+        else NAV_PAGES
+    )
+
     with st.sidebar:
         html_block(
             brand_html()
@@ -113,7 +124,7 @@ def render_sidebar(
 
         page = st.radio(
             "Navigation",
-            NAV_PAGES,
+            pages,
             key="page",
             label_visibility="collapsed",
             format_func=lambda page_id: (
@@ -153,25 +164,33 @@ def render_sidebar(
 # ---------------------------------------------------------------------------
 
 def require_demo_access() -> bool:
-    """Protect the public portfolio demo with an access password."""
+    """Protect the public demo with viewer and admin access roles."""
 
-    expected_password = os.getenv(
+    admin_password = os.getenv(
         "INVOICEFLOW_DEMO_PASSWORD",
         "",
     )
 
-    # No password configured -> local development
-    if not expected_password:
+    viewer_password = os.getenv(
+        "INVOICEFLOW_VIEWER_PASSWORD",
+        "",
+    )
+
+    # Local development: no passwords configured.
+    if not admin_password and not viewer_password:
+        st.session_state["demo_role"] = "admin"
         return True
 
-    if st.session_state.get(
-        "demo_authenticated"
+    if (
+        st.session_state.get("demo_authenticated")
+        and st.session_state.get("demo_role")
+        in {"admin", "viewer"}
     ):
         return True
 
     st.title("InvoiceFlow AI")
     st.caption(
-        "Private portfolio demonstration"
+        "Portfolio demonstration"
     )
 
     password = st.text_input(
@@ -184,13 +203,37 @@ def require_demo_access() -> bool:
         "Enter",
         type="primary",
     ):
-        if secrets.compare_digest(
-            password,
-            expected_password,
+        if (
+            admin_password
+            and secrets.compare_digest(
+                password,
+                admin_password,
+            )
         ):
             st.session_state[
                 "demo_authenticated"
             ] = True
+
+            st.session_state[
+                "demo_role"
+            ] = "admin"
+
+            st.rerun()
+
+        elif (
+            viewer_password
+            and secrets.compare_digest(
+                password,
+                viewer_password,
+            )
+        ):
+            st.session_state[
+                "demo_authenticated"
+            ] = True
+
+            st.session_state[
+                "demo_role"
+            ] = "viewer"
 
             st.rerun()
 
@@ -200,6 +243,8 @@ def require_demo_access() -> bool:
             )
 
     return False
+
+
 
 def main() -> None:
     st.set_page_config(
@@ -219,8 +264,14 @@ def main() -> None:
 
     inject_dynamic_css()
 
+    role = st.session_state.get(
+        "demo_role",
+        "viewer",
+    )
+
     page = render_sidebar(
-        api_online
+        api_online,
+        role,
     )
 
     render_flash()

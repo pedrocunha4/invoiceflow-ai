@@ -63,6 +63,26 @@ def render_processing_result(
 
 
 def render_upload_section() -> None:
+    # Read-only demo users cannot process invoices.
+    if (
+        st.session_state.get(
+            "demo_role"
+        )
+        == "viewer"
+    ):
+        section_header(
+            t("process.title"),
+            t("process.caption"),
+        )
+
+        st.info(
+            t(
+                "process.read_only"
+            )
+        )
+
+        return
+
     section_header(
         t("process.title"),
         t("process.caption"),
