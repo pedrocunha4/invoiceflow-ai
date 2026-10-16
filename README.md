@@ -788,6 +788,8 @@ INVOICEFLOW_VIEWER_PASSWORD=
 
 `INVOICEFLOW_VIEWER_PASSWORD` configures the read-only portfolio access code.
 
+`INVOICEFLOW_API_URL` defines the FastAPI backend used by the Streamlit dashboard. It defaults to `http://127.0.0.1:8000` for local development.
+
 If neither demo password is configured, the dashboard runs with administrator privileges for local development.
 
 Strong random values can be generated with:
